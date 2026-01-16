@@ -1,0 +1,11 @@
+<RCC>
+  <qresource prefix="/ConsoleApp/">
+    <file alias="main.qml">C:/prototype/main.qml</file>
+    <file alias="icons/kitty1.jpg">C:/prototype/icons/kitty1.jpg</file>
+    <file alias="icons/kitty2.jpg">C:/prototype/icons/kitty2.jpg</file>
+    <file alias="icons/kitty3.png">C:/prototype/icons/kitty3.png</file>
+    <file alias="icons/kitty4.jpg">C:/prototype/icons/kitty4.jpg</file>
+    <file alias="icons/kitty5.jpg">C:/prototype/icons/kitty5.jpg</file>
+  </qresource>
+</RCC>
+

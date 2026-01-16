@@ -1,0 +1,14 @@
+-rootPath
+C:/prototype
+-cmake-output
+-output-file
+C:/prototype/build/.qt/qml_imports/ConsoleUI_conf.cmake
+-importPath
+C:/prototype/build/ConsoleApp
+-importPath
+C:/prototype/build
+-importPath
+C:/msys64/mingw64/share/qt6/qml
+-qrcFiles
+C:/prototype/build/.qt/rcc/qmake_ConsoleApp.qrc
+C:/prototype/build/.qt/rcc/ConsoleUI_raw_qml_0.qrc

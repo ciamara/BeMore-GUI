@@ -1,0 +1,41 @@
+file(REMOVE_RECURSE
+  ".qt/rcc/qrc_ConsoleUI_raw_qml_0.cpp"
+  ".qt/rcc/qrc_qmake_ConsoleApp.cpp"
+  ".rcc/qmlcache/ConsoleUI_main_qml.cpp"
+  ".rcc/qmlcache/ConsoleUI_main_qml.cpp.aotstats"
+  ".rcc/qmlcache/ConsoleUI_qmlcache_loader.cpp"
+  "CMakeFiles/ConsoleUI_autogen.dir/AutogenUsed.txt"
+  "CMakeFiles/ConsoleUI_autogen.dir/ParseCache.txt"
+  "ConsoleUI_autogen"
+  "CMakeFiles/ConsoleUI.dir/ConsoleUI_autogen/mocs_compilation.cpp.obj"
+  "CMakeFiles/ConsoleUI.dir/ConsoleUI_autogen/mocs_compilation.cpp.obj.d"
+  "CMakeFiles/ConsoleUI.dir/build/.qt/rcc/qrc_ConsoleUI_raw_qml_0.cpp.obj"
+  "CMakeFiles/ConsoleUI.dir/build/.qt/rcc/qrc_ConsoleUI_raw_qml_0.cpp.obj.d"
+  "CMakeFiles/ConsoleUI.dir/build/.qt/rcc/qrc_qmake_ConsoleApp.cpp.obj"
+  "CMakeFiles/ConsoleUI.dir/build/.qt/rcc/qrc_qmake_ConsoleApp.cpp.obj.d"
+  "CMakeFiles/ConsoleUI.dir/build/.rcc/qmlcache/ConsoleUI_main_qml.cpp.obj"
+  "CMakeFiles/ConsoleUI.dir/build/.rcc/qmlcache/ConsoleUI_main_qml.cpp.obj.d"
+  "CMakeFiles/ConsoleUI.dir/build/.rcc/qmlcache/ConsoleUI_qmlcache_loader.cpp.obj"
+  "CMakeFiles/ConsoleUI.dir/build/.rcc/qmlcache/ConsoleUI_qmlcache_loader.cpp.obj.d"
+  "CMakeFiles/ConsoleUI.dir/consoleui_qmltyperegistrations.cpp.obj"
+  "CMakeFiles/ConsoleUI.dir/consoleui_qmltyperegistrations.cpp.obj.d"
+  "CMakeFiles/ConsoleUI.dir/main.cpp.obj"
+  "CMakeFiles/ConsoleUI.dir/main.cpp.obj.d"
+  "ConsoleApp/ConsoleUI.qmltypes"
+  "ConsoleUI.exe"
+  "ConsoleUI.exe.manifest"
+  "ConsoleUI.pdb"
+  "ConsoleUI_autogen/mocs_compilation.cpp"
+  "ConsoleUI_autogen/timestamp"
+  "consoleui_qmltyperegistrations.cpp"
+  "libConsoleUI.dll.a"
+  "meta_types/ConsoleUI_json_file_list.txt"
+  "meta_types/ConsoleUI_json_file_list.txt.timestamp"
+  "meta_types/qt6consoleui_metatypes.json"
+  "meta_types/qt6consoleui_metatypes.json.gen"
+)
+
+# Per-language clean rules from dependency scanning.
+foreach(lang CXX)
+  include(CMakeFiles/ConsoleUI.dir/cmake_clean_${lang}.cmake OPTIONAL)
+endforeach()

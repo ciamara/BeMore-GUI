@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="/ConsoleApp">
+    <file alias="qmldir">C:/prototype/build/ConsoleApp/qmldir</file>
+  </qresource>
+</RCC>
+

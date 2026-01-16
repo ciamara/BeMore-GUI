@@ -1,0 +1,4 @@
+module ConsoleApp
+typeinfo ConsoleUI.qmltypes
+prefer :/ConsoleApp/
+

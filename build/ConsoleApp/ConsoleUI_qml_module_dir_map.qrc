@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="/">
+    <file alias="/ConsoleApp">C:/prototype/build/ConsoleApp</file>
+
+  </qresource>
+</RCC>

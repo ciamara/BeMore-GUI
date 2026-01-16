@@ -1,0 +1,12 @@
+--bare
+-I
+C:/prototype/build
+-I
+C:/msys64/mingw64/share/qt6/qml
+--resource
+C:/prototype/build/.qt/rcc/qmake_ConsoleApp.qrc
+--resource
+C:/prototype/build/.qt/rcc/ConsoleUI_raw_qml_0.qrc
+C:/prototype/main.qml
+--json
+C:/prototype/build/ConsoleUI_qmllint.json
