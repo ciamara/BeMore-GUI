@@ -11,11 +11,11 @@ set(CMAKE_AUTOUIC ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Gui Qml Quick)
 
-qt_add_executable(ConsoleUI
+qt_add_executable(BeMore
     main.cpp
 )
 
-qt_add_qml_module(ConsoleUI
+qt_add_qml_module(BeMore
     URI ConsoleApp
     VERSION 1.0
     QML_FILES main.qml
@@ -27,4 +27,4 @@ qt_add_qml_module(ConsoleUI
         icons/kitty5.jpg
 )
 
-target_link_libraries(ConsoleUI PRIVATE Qt6::Gui Qt6::Qml Qt6::Quick)
+target_link_libraries(BeMore PRIVATE Qt6::Gui Qt6::Qml Qt6::Quick)
