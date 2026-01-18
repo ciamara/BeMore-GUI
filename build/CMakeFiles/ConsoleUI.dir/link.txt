@@ -1,3 +1,0 @@
-C:\msys64\mingw64\bin\cmake.exe -E rm -f CMakeFiles\ConsoleUI.dir/objects.a
-C:\msys64\mingw64\bin\ar.exe qc CMakeFiles\ConsoleUI.dir/objects.a @CMakeFiles\ConsoleUI.dir\objects1.rsp
-C:\msys64\mingw64\bin\g++.exe -Wl,--whole-archive CMakeFiles\ConsoleUI.dir/objects.a -Wl,--no-whole-archive -o ConsoleUI.exe -Wl,--out-implib,libConsoleUI.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\ConsoleUI.dir\linkLibs.rsp

@@ -1,5 +1,0 @@
---resource
-C:/prototype/build/.qt/rcc/qmake_ConsoleApp.qrc
---resource
-C:/prototype/build/.qt/rcc/ConsoleUI_raw_qml_0.qrc
-/ConsoleApp/main.qml
