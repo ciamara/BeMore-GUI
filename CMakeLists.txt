@@ -15,16 +15,21 @@ qt_add_executable(BeMore
     main.cpp
 )
 
+find_package(Qt6 REQUIRED COMPONENTS Gui Qml Quick Svg)
+
 qt_add_qml_module(BeMore
     URI ConsoleApp
     VERSION 1.0
     QML_FILES main.qml
     RESOURCES
-        icons/kitty1.jpg
-        icons/kitty2.jpg
-        icons/kitty3.png
-        icons/kitty4.jpg
-        icons/kitty5.jpg
+        icons/camera.svg
+        icons/music.svg
+        icons/controller.svg
+        icons/poweron.svg
+        icons/sprocket.svg
+        icons/wallpaper.jpg
+        icons/back.svg
 )
 
+target_link_libraries(BeMore PRIVATE Qt6::Gui Qt6::Qml Qt6::Quick Qt6::Svg)
 target_link_libraries(BeMore PRIVATE Qt6::Gui Qt6::Qml Qt6::Quick)
