@@ -2,7 +2,7 @@
 
 ---
 
-## 1. System Installation
+## libs & modules
 
 core Qt6 libraries and QML modules used for file navigation and media handling:
 
