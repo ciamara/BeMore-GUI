@@ -29,6 +29,9 @@ qt_add_qml_module(BeMore
         icons/sprocket.svg
         icons/wallpaper.jpg
         icons/back.svg
+        icons/wallpaper.gif
+        icons/wallpapergif2.gif
+        icons/mode.svg
 )
 
 target_link_libraries(BeMore PRIVATE Qt6::Gui Qt6::Qml Qt6::Quick Qt6::Svg)
