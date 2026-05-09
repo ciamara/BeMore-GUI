@@ -13,6 +13,7 @@ find_package(Qt6 REQUIRED COMPONENTS Gui Qml Quick)
 
 qt_add_executable(BeMore
     main.cpp
+    batteryHandler.cpp
 )
 
 find_package(Qt6 REQUIRED COMPONENTS Gui Qml Quick Svg)
@@ -32,6 +33,10 @@ qt_add_qml_module(BeMore
         icons/wallpaper.gif
         icons/wallpapergif2.gif
         icons/mode.svg
+        icons/battery100.svg
+        icons/battery75.svg
+        icons/battery50.svg
+        icons/battery25.svg
 )
 
 target_link_libraries(BeMore PRIVATE Qt6::Gui Qt6::Qml Qt6::Quick Qt6::Svg)

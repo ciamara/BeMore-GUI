@@ -89,6 +89,63 @@ Window {
             background: null
         }
 
+        Text {
+            id: dateText
+            anchors.right: batteryDisplay.left
+            anchors.rightMargin: 20
+            anchors.verticalCenter: parent.verticalCenter
+            color: "#cac5d9"
+            font.pixelSize: 20
+            font.bold: true
+            horizontalAlignment: Text.AlignRight
+
+            text: Qt.formatDateTime(new Date(), "dd/MM hh:mm")
+
+            Timer {
+                interval: 5000
+                running: true
+                repeat: true
+                onTriggered: parent.text = Qt.formatDateTime(new Date(), "dd/MM hh:mm")
+            }
+        }
+
+        Row {
+            id: batteryDisplay
+            anchors.right: powerButton.left
+            anchors.rightMargin: 20
+            anchors.verticalCenter: parent.verticalCenter
+            spacing: 8
+
+            Image {
+                width: 30; height: 30
+                fillMode: Image.PreserveAspectFit
+                anchors.verticalCenter: parent.verticalCenter
+                opacity: 1.0
+    
+                source: {
+                    var level = parseInt(BatteryContext.level);
+
+                    if (isNaN(level)) {
+                        return "icons/battery100.svg";
+                    }
+                    
+                    if (level > 75) return "icons/battery100.svg";
+                    else if (level > 50) return "icons/battery75.svg";
+                    else if (level > 25) return "icons/battery50.svg";
+                    else return "icons/battery25.svg";
+                }
+            }
+
+            Text {
+                id: batteryText
+                color: "#cac5d9"
+                font.pixelSize: 18
+                font.bold: true
+                anchors.verticalCenter: parent.verticalCenter
+                text: BatteryContext.level 
+            }
+        }
+
         Button {
             id: powerButton
             anchors.right: parent.right

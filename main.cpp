@@ -3,9 +3,13 @@
 #include <QQmlContext>
 #include <QDirIterator>
 
+#include "batteryHandler.h"
+
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
+
+    BatteryHandler batteryHandler;
 
     // qDebug() << "qrc:";
     // QDirIterator it(":", QDirIterator::Subdirectories);
@@ -14,6 +18,8 @@ int main(int argc, char *argv[])
     // }
 
     QQmlApplicationEngine engine;
+
+    engine.rootContext()->setContextProperty("BatteryContext", &batteryHandler);
 
     const QUrl url(u"qrc:/ConsoleApp/main.qml"_qs);
     
