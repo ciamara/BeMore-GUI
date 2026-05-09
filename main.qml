@@ -15,17 +15,36 @@ Window {
 
     property bool gamesMode: false
 
+    property bool settingsMode: false
+
+    property bool wallpaperSettingsMode: false
+
+    property bool useAnimatedWallpaper: false
+
     property string openedImageSource: ""
 
     //wallpaper
-    AnimatedImage {
-        id: backgroundImage
+    Item {
+        id: backgroundContainer
         anchors.fill: parent
-        source: "icons/wallpapergif2.gif"
         z: -1
-        fillMode: Image.PreserveAspectCrop
-        opacity: 0.8
-        playing: true 
+
+        Image {
+            anchors.fill: parent
+            source: "icons/wallpaper_static.jpg" 
+            fillMode: Image.PreserveAspectCrop
+            opacity: 0.8
+            visible: !root.useAnimatedWallpaper 
+        }
+
+        AnimatedImage {
+            anchors.fill: parent
+            source: "icons/wallpapergif2.gif"
+            fillMode: Image.PreserveAspectCrop
+            opacity: 0.8
+            playing: root.useAnimatedWallpaper
+            visible: root.useAnimatedWallpaper
+        }
     }
 
     //back button
@@ -117,6 +136,15 @@ Window {
             spacing: 8
 
             Image {
+                source: "icons/thunder.svg" 
+                width: 22; height: 22
+                fillMode: Image.PreserveAspectFit
+                anchors.verticalCenter: parent.verticalCenter
+                visible: BatteryContext.isCharging
+                opacity: 1.0
+            }
+
+            Image {
                 width: 30; height: 30
                 fillMode: Image.PreserveAspectFit
                 anchors.verticalCenter: parent.verticalCenter
@@ -168,7 +196,7 @@ Window {
         anchors.fill: parent
         visible: root.currentScreen === 0
 
-        enabled: visible && root.openedImageSource === "" && !root.gamesMode
+        enabled: visible && root.openedImageSource === "" && !root.gamesMode && !root.settingsMode
         focus: true 
         Component.onCompleted: carousel.forceActiveFocus()
 
@@ -187,6 +215,7 @@ Window {
             if (currentIndex === 0) { root.currentScreen = 1; musicList.forceActiveFocus() }
             else if (currentIndex === 1) { root.currentScreen = 2; imageGrid.forceActiveFocus() }
             else if (currentIndex === 2) { root.gamesMode = true; gamesCarousel.forceActiveFocus() }
+            else if (currentIndex === 3) { root.settingsMode = true; settingsCarousel.forceActiveFocus() }
         }
 
         Keys.onReturnPressed: selectItem()
@@ -220,6 +249,168 @@ Window {
 
             Behavior on opacity { NumberAnimation { duration: 250 } }
             Behavior on scale { NumberAnimation { duration: 250; easing.type: Easing.OutQuad } }
+        }
+    }
+
+    // settings carousel
+    PathView {
+        id: settingsCarousel
+        width: parent.width
+        height: 250
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 100
+        visible: root.settingsMode && root.currentScreen === 0
+        focus: visible
+        clip: true
+
+        model: ListModel {
+            ListElement { title: "WALLPAPER"; icon: "icons/wallpaper.svg" }
+        }
+
+        Keys.onUpPressed: {
+            root.settingsMode = false
+            carousel.forceActiveFocus()
+        }
+        Keys.onLeftPressed: decrementCurrentIndex()
+        Keys.onRightPressed: incrementCurrentIndex()
+
+        Keys.onSpacePressed: {
+            if (currentIndex === 0) {
+                root.wallpaperSettingsMode = true
+                root.settingsMode = false
+                wallpaperSettingsCarousel.forceActiveFocus()
+            }
+        }
+
+        pathItemCount: 1
+        preferredHighlightBegin: 0.5
+        preferredHighlightEnd: 0.5
+        highlightRangeMode: PathView.StrictlyEnforceRange
+        snapMode: PathView.SnapToItem
+
+        path: Path {
+            startX: root.width * 0.15; startY: 150
+            PathLine { x: root.width * 0.85; y: 150 }
+        }
+
+        delegate: Item {
+            width: 150; height: 150
+            readonly property bool isCurrent: PathView.isCurrentItem
+            z: isCurrent ? 10 : 1
+            
+            Rectangle {
+                anchors.fill: parent
+                anchors.margins: 10
+                color: "transparent"
+                border.color: "transparent"
+                border.width: 3
+                
+                Image {
+                    anchors.fill: parent
+                    anchors.margins: 5
+                    source: model.icon
+                    fillMode: Image.PreserveAspectFit
+                }
+                
+                opacity: isCurrent ? 1.0 : 0.3
+                scale: isCurrent ? 1.1 : 0.7
+                Behavior on scale { NumberAnimation { duration: 200 } }
+                Behavior on opacity { NumberAnimation { duration: 200 } }
+            }
+        }
+
+    }
+
+    //indicator of current suboption if depth > 2
+    Image {
+        id: floatingIndicator
+        anchors.bottom: wallpaperSettingsCarousel.top 
+        anchors.bottomMargin: -118
+        anchors.horizontalCenter: parent.horizontalCenter
+        
+        width: 60
+        height: 60
+        fillMode: Image.PreserveAspectFit
+        
+        visible: root.wallpaperSettingsMode // || root.otherSettingsMode
+        
+        source: {
+            if (settingsCarousel.model.count > 0) {
+                return settingsCarousel.model.get(settingsCarousel.currentIndex).icon
+            }
+            return ""
+        }
+        
+        opacity: visible ? 0.2 : 0.0
+    }
+
+    // subsettings for wallpaper
+    PathView {
+        id: wallpaperSettingsCarousel
+        width: parent.width
+        height: 250
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 100
+        visible: root.wallpaperSettingsMode && root.currentScreen === 0
+        focus: visible
+        clip: true
+
+        model: ListModel {
+            ListElement { title: "STATIC"; isAnimated: false }
+            ListElement { title: "ANIMATED"; isAnimated: true }
+            ListElement { title: "STATIC"; isAnimated: false }
+            ListElement { title: "ANIMATED"; isAnimated: true }
+        }
+
+        Keys.onUpPressed: {
+            root.wallpaperSettingsMode = false
+            root.settingsMode = true
+            settingsCarousel.forceActiveFocus()
+        }
+        Keys.onLeftPressed: decrementCurrentIndex()
+        Keys.onRightPressed: incrementCurrentIndex()
+
+        Keys.onSpacePressed: {
+            root.useAnimatedWallpaper = model.get(currentIndex).isAnimated
+        }
+
+        pathItemCount: 3
+        preferredHighlightBegin: 0.5
+        preferredHighlightEnd: 0.5
+        highlightRangeMode: PathView.StrictlyEnforceRange
+        snapMode: PathView.SnapToItem
+
+        path: Path {
+            startX: root.width * 0.15; startY: 150
+            PathLine { x: root.width * 0.85; y: 150 }
+        }
+
+        delegate: Item {
+            width: 150; height: 150
+            readonly property bool isCurrent: PathView.isCurrentItem
+            z: isCurrent ? 10 : 1
+            
+            Rectangle {
+                anchors.fill: parent
+                color: "transparent"
+                
+                Text {
+                    anchors.centerIn: parent
+                    text: model.title
+
+                    color: (root.useAnimatedWallpaper === model.isAnimated) ? "#83916A" : "#cac5d9"
+                    
+                    font.pixelSize: (isCurrent && wallpaperSettingsCarousel.activeFocus) ? 42 : 28
+                    font.bold: isCurrent
+                    
+                    Behavior on font.pixelSize { NumberAnimation { duration: 200 } }
+                }
+                
+                opacity: isCurrent ? 1.0 : 0.3
+                scale: isCurrent ? 1.1 : 0.7
+                Behavior on scale { NumberAnimation { duration: 200 } }
+                Behavior on opacity { NumberAnimation { duration: 200 } }
+            }
         }
     }
 

@@ -37,6 +37,9 @@ qt_add_qml_module(BeMore
         icons/battery75.svg
         icons/battery50.svg
         icons/battery25.svg
+        icons/thunder.svg
+        icons/wallpaper.svg
+        icons/wallpaper_static.jpg
 )
 
 target_link_libraries(BeMore PRIVATE Qt6::Gui Qt6::Qml Qt6::Quick Qt6::Svg)
