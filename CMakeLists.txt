@@ -40,6 +40,7 @@ qt_add_qml_module(BeMore
         icons/thunder.svg
         icons/wallpaper.svg
         icons/wallpaper_static.jpg
+        icons/pause.svg
 )
 
 target_link_libraries(BeMore PRIVATE Qt6::Gui Qt6::Qml Qt6::Quick Qt6::Svg)

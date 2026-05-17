@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import Qt.labs.folderlistmodel
+import QtMultimedia
 
 Window {
     id: root
@@ -22,6 +23,21 @@ Window {
     property bool useAnimatedWallpaper: false
 
     property string openedImageSource: ""
+
+    property string playingMusicSource: ""
+
+    MediaPlayer {
+        id: audioPlayer
+        audioOutput: AudioOutput {}
+        source: root.playingMusicSource
+
+        // turn off player on end of audio
+        onMediaStatusChanged: {
+            if (mediaStatus === MediaPlayer.EndOfMedia) {
+                root.playingMusicSource = ""
+            }
+        }
+    }
 
     //wallpaper
     Item {
@@ -81,6 +97,40 @@ Window {
         height: 100
         z: 100
         enabled: root.openedImageSource === ""
+
+        // music info (filename)
+        Text {
+            id: musicInfo
+            anchors.left: musicInfoIcon.right
+            anchors.leftMargin: 20
+            anchors.verticalCenter: parent.verticalCenter
+            color: "#cac5d9"
+            font.pixelSize: 20
+            font.bold: true
+            horizontalAlignment: Text.AlignLeft
+            verticalAlignment: Text.AlignVCenter
+
+            text: root.playingMusicSource !== "" ? root.playingMusicSource.split('/').pop().split('.')[0] : ""
+        }
+
+        // music info (playing/paused)
+        Image {
+            id: musicInfoIcon
+            anchors.left: parent.left
+            anchors.leftMargin: 50
+            anchors.verticalCenter: parent.verticalCenter
+
+            source: {
+                if (audioPlayer.playbackState === MediaPlayer.PlayingState) {
+                    return "icons/music.svg"
+                } else {
+                    return "icons/pause.svg"
+                }
+            }
+            width: 30; height: 30
+            fillMode: Image.PreserveAspectFit
+            visible: root.playingMusicSource !== ""
+        }
 
         Button {
             id: modeButton
@@ -496,12 +546,52 @@ Window {
 
         delegate: Item {
             width: musicList.width; height: 80
-            Text {
+
+            readonly property string currentFileUrl: fileURL.toString()
+            readonly property bool isPlayingThis: root.playingMusicSource === currentFileUrl
+
+            // play/pause
+            Keys.onSpacePressed: {
+                if (isPlayingThis) {
+                    if (audioPlayer.playbackState === MediaPlayer.PlayingState) {
+                        audioPlayer.pause()
+                    } else {
+                        audioPlayer.play()
+                    }
+                } else {
+                    root.playingMusicSource = currentFileUrl
+                    audioPlayer.play()
+                }
+            }
+
+            Row {
                 anchors.centerIn: parent
-                text: fileName; color: "#cac5d9"
-                font.pixelSize: (parent.ListView.isCurrentItem && musicList.activeFocus) ? 32 : 20
-                font.bold: (parent.ListView.isCurrentItem && musicList.activeFocus)
-                opacity: (parent.ListView.isCurrentItem && musicList.activeFocus) ? 1.0 : 0.3
+                spacing: 15
+                
+                // playing indicator
+                Image {
+                    source: {
+                        if (audioPlayer.playbackState === MediaPlayer.PlayingState){
+                            "icons/music.svg"
+                        }
+                        else if (audioPlayer.playbackState === MediaPlayer.PausedState){
+                            "icons/pause.svg"
+                        }
+                    }
+                    y: 7
+                    width: 24; height: 24
+                    fillMode: Image.PreserveAspectFit
+                    visible: isPlayingThis
+                    opacity: (parent.parent.ListView.isCurrentItem && musicList.activeFocus) ? 1.0 : 0.5
+                }
+
+                Text {
+                    text: fileName
+                    color: isPlayingThis ? "#83916A" : "#cac5d9"
+                    font.pixelSize: (parent.parent.ListView.isCurrentItem && musicList.activeFocus) ? 32 : 20
+                    font.bold: (parent.parent.ListView.isCurrentItem && musicList.activeFocus)
+                    opacity: (parent.parent.ListView.isCurrentItem && musicList.activeFocus) ? 1.0 : 0.3
+                }
             }
         }
     }
