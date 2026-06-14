@@ -11,9 +11,9 @@ Window {
     title: "BeMore"
     color: "#0f0f0f"
 
-    property string musicFolderPath: "file:///home/kotel/Music"
-    property string gamesFolderPath: "file:///home/kotel/Games"
-    property string picturesFolderPath: "file:///home/kotel/Pictures"
+    property string musicFolderPath: "file:///home/proj560/Music"
+    property string gamesFolderPath: "file:///home/proj560/Games"
+    property string picturesFolderPath: "file:///home/proj560/Pictures"
 
     // 0-carousel, 1-music, 2-images
     property int currentScreen: 0
