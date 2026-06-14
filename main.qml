@@ -11,6 +11,10 @@ Window {
     title: "BeMore"
     color: "#0f0f0f"
 
+    property string musicFolderPath: "file:///home/kotel/Music"
+    property string gamesFolderPath: "file:///home/kotel/Games"
+    property string picturesFolderPath: "file:///home/kotel/Pictures"
+
     // 0-carousel, 1-music, 2-images
     property int currentScreen: 0
 
@@ -476,7 +480,7 @@ Window {
         clip: true
 
         model: FolderListModel {
-            folder: "file:///home/kotel/Games"
+            folder: root.gamesFolderPath
             nameFilters: ["*.jpg", "*.png", "*.jpeg"]
             showDirs: false
         }
@@ -540,7 +544,7 @@ Window {
         Keys.onEscapePressed: { root.currentScreen = 0; carousel.forceActiveFocus() }
 
         model: FolderListModel {
-            folder: "file:///home/kotel/Music"
+            folder: root.musicFolderPath
             nameFilters: ["*.mp3", "*.MP3", "*.wav", "*.WAV"]; showDirs: false
         }
 
@@ -610,7 +614,7 @@ Window {
         Keys.onEscapePressed: { root.currentScreen = 0; carousel.forceActiveFocus() }
 
         model: FolderListModel {
-            folder: "file:///home/kotel/Pictures"
+            folder: root.picturesFolderPath
             nameFilters: ["*.jpg", "*.JPG", "*.png", "*.PNG", "*.jpeg", "*.JPEG"]; showDirs: false
         }
         

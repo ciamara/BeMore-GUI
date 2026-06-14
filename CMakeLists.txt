@@ -9,11 +9,12 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Gui Qml Quick)
+find_package(Qt6 REQUIRED COMPONENTS Gui Qml Quick Svg Multimedia)
 
 qt_add_executable(BeMore
     main.cpp
     batteryHandler.cpp
+    batteryHandler.h
 )
 
 find_package(Qt6 REQUIRED COMPONENTS Gui Qml Quick Svg)
@@ -43,5 +44,10 @@ qt_add_qml_module(BeMore
         icons/pause.svg
 )
 
-target_link_libraries(BeMore PRIVATE Qt6::Gui Qt6::Qml Qt6::Quick Qt6::Svg)
-target_link_libraries(BeMore PRIVATE Qt6::Gui Qt6::Qml Qt6::Quick)
+target_link_libraries(BeMore PRIVATE 
+    Qt6::Gui 
+    Qt6::Qml 
+    Qt6::Quick 
+    Qt6::Svg
+    Qt6::Multimedia
+)
