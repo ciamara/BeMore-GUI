@@ -9,45 +9,27 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Gui Qml Quick Svg Multimedia)
+find_package(Qt5 REQUIRED COMPONENTS 
+    Core 
+    Gui 
+    Qml 
+    Quick 
+    Svg 
+    Multimedia
+)
 
-qt_add_executable(BeMore
+add_executable(BeMore
     main.cpp
     batteryHandler.cpp
     batteryHandler.h
-)
-
-find_package(Qt6 REQUIRED COMPONENTS Gui Qml Quick Svg)
-
-qt_add_qml_module(BeMore
-    URI ConsoleApp
-    VERSION 1.0
-    QML_FILES main.qml
-    RESOURCES
-        icons/camera.svg
-        icons/music.svg
-        icons/controller.svg
-        icons/poweron.svg
-        icons/sprocket.svg
-        icons/wallpaper.jpg
-        icons/back.svg
-        icons/wallpaper.gif
-        icons/wallpapergif2.gif
-        icons/mode.svg
-        icons/battery100.svg
-        icons/battery75.svg
-        icons/battery50.svg
-        icons/battery25.svg
-        icons/thunder.svg
-        icons/wallpaper.svg
-        icons/wallpaper_static.jpg
-        icons/pause.svg
+    resources.qrc
 )
 
 target_link_libraries(BeMore PRIVATE 
-    Qt6::Gui 
-    Qt6::Qml 
-    Qt6::Quick 
-    Qt6::Svg
-    Qt6::Multimedia
+    Qt5::Core
+    Qt5::Gui 
+    Qt5::Qml 
+    Qt5::Quick 
+    Qt5::Svg
+    Qt5::Multimedia
 )

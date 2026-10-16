@@ -1,7 +1,8 @@
-import QtQuick
-import QtQuick.Controls
-import Qt.labs.folderlistmodel
-import QtMultimedia
+import QtQuick 2.15
+import QtQuick.Controls 2.15
+import Qt.labs.folderlistmodel 2.15
+import QtMultimedia 5.15
+import QtQuick.Window 2.15
 
 Window {
     id: root
@@ -32,12 +33,10 @@ Window {
 
     MediaPlayer {
         id: audioPlayer
-        audioOutput: AudioOutput {}
         source: root.playingMusicSource
 
-        // turn off player on end of audio
-        onMediaStatusChanged: {
-            if (mediaStatus === MediaPlayer.EndOfMedia) {
+        onStatusChanged: {
+            if (status === MediaPlayer.EndOfMedia) {
                 root.playingMusicSource = ""
             }
         }
@@ -295,6 +294,14 @@ Window {
             scale: isCurrent ? 1.2 : 0.7
             z: isCurrent ? 10 : 1
 
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    carousel.currentIndex = index
+                    carousel.selectItem()
+                }
+            }
+
             Image { 
                 anchors.centerIn: parent
                 source: model.icon
@@ -386,7 +393,7 @@ Window {
         height: 60
         fillMode: Image.PreserveAspectFit
         
-        visible: root.wallpaperSettingsMode // || root.otherSettingsMode
+        visible: root.wallpaperSettingsMode
         
         source: {
             if (settingsCarousel.model.count > 0) {
@@ -506,6 +513,7 @@ Window {
         delegate: Item {
             width: 150; height: 150
             readonly property bool isCurrent: PathView.isCurrentItem
+            readonly property var gameImgUrl: typeof fileUrl !== "undefined" ? fileUrl : (typeof fileURL !== "undefined" ? fileURL : "")
             z: isCurrent ? 10 : 1
             
             Rectangle {
@@ -518,7 +526,7 @@ Window {
                 Image {
                     anchors.fill: parent
                     anchors.margins: 5
-                    source: fileURL
+                    source: gameImgUrl
                     fillMode: Image.PreserveAspectCrop
                 }
                 
@@ -539,7 +547,7 @@ Window {
         preferredHighlightBegin: height * 0.45; preferredHighlightEnd: height * 0.5
         highlightRangeMode: ListView.ApplyRange; snapMode: ListView.SnapToItem
         
-        Keys.onUpPressed: (event) => { if (currentIndex === 0) modeButton.forceActiveFocus(); else event.accepted = false; }
+        Keys.onUpPressed: function(event) { if (currentIndex === 0) modeButton.forceActiveFocus(); else event.accepted = false; }
         Keys.onLeftPressed: backButton.forceActiveFocus()
         Keys.onEscapePressed: { root.currentScreen = 0; carousel.forceActiveFocus() }
 
@@ -549,13 +557,13 @@ Window {
         }
 
         delegate: Item {
+            id: musicItemDelegate
             width: musicList.width; height: 80
 
-            readonly property string currentFileUrl: fileURL.toString()
+            readonly property string currentFileUrl: (typeof fileUrl !== "undefined" ? fileUrl : (typeof fileURL !== "undefined" ? fileURL : "")).toString()
             readonly property bool isPlayingThis: root.playingMusicSource === currentFileUrl
 
-            // play/pause
-            Keys.onSpacePressed: {
+            function toggleAudio() {
                 if (isPlayingThis) {
                     if (audioPlayer.playbackState === MediaPlayer.PlayingState) {
                         audioPlayer.pause()
@@ -568,6 +576,16 @@ Window {
                 }
             }
 
+            Keys.onSpacePressed: toggleAudio()
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    musicList.currentIndex = index
+                    musicItemDelegate.toggleAudio()
+                }
+            }
+
             Row {
                 anchors.centerIn: parent
                 spacing: 15
@@ -577,8 +595,7 @@ Window {
                     source: {
                         if (audioPlayer.playbackState === MediaPlayer.PlayingState){
                             "icons/music.svg"
-                        }
-                        else if (audioPlayer.playbackState === MediaPlayer.PausedState){
+                        } else {
                             "icons/pause.svg"
                         }
                     }
@@ -590,7 +607,7 @@ Window {
                 }
 
                 Text {
-                    text: fileName
+                    text: typeof fileName !== "undefined" ? fileName : ""
                     color: isPlayingThis ? "#83916A" : "#cac5d9"
                     font.pixelSize: (parent.parent.ListView.isCurrentItem && musicList.activeFocus) ? 32 : 20
                     font.bold: (parent.parent.ListView.isCurrentItem && musicList.activeFocus)
@@ -609,8 +626,8 @@ Window {
         cellWidth: 240; cellHeight: 240; clip: true; focus: true
         
         readonly property int columns: Math.floor(width / cellWidth)
-        Keys.onUpPressed: (event) => { if (currentIndex < columns) modeButton.forceActiveFocus(); else event.accepted = false; }
-        Keys.onLeftPressed: (event) => { if (currentIndex % columns === 0) backButton.forceActiveFocus(); else event.accepted = false; }
+        Keys.onUpPressed: function(event) { if (currentIndex < columns) modeButton.forceActiveFocus(); else event.accepted = false; }
+        Keys.onLeftPressed: function(event) { if (currentIndex % columns === 0) backButton.forceActiveFocus(); else event.accepted = false; }
         Keys.onEscapePressed: { root.currentScreen = 0; carousel.forceActiveFocus() }
 
         model: FolderListModel {
@@ -620,11 +637,28 @@ Window {
         
         delegate: Item {
             width: 220; height: 220
-            Keys.onSpacePressed: root.openedImageSource = fileURL
+            readonly property var currentImgSrc: typeof fileUrl !== "undefined" ? fileUrl : (typeof fileURL !== "undefined" ? fileURL : "")
+
+            Keys.onSpacePressed: root.openedImageSource = currentImgSrc
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    imageGrid.currentIndex = index
+                    root.openedImageSource = currentImgSrc
+                }
+            }
+
             Rectangle {
                 anchors.fill: parent; color: "transparent"
                 border.color: "#cac5d9"; border.width: (parent.GridView.isCurrentItem && imageGrid.activeFocus) ? 2 : 0
-                Image { anchors.fill: parent; anchors.margins: 5; source: fileURL; fillMode: Image.PreserveAspectCrop; autoTransform: true }
+                Image { 
+                    anchors.fill: parent
+                    anchors.margins: 5
+                    source: currentImgSrc
+                    fillMode: Image.PreserveAspectCrop
+                    autoTransform: true 
+                }
             }
         }
     }
@@ -633,13 +667,21 @@ Window {
     Item {
         id: lightbox
         anchors.fill: parent; visible: root.openedImageSource !== ""; z: 1000; focus: visible 
-        Rectangle { anchors.fill: parent; color: "black"; opacity: 0.7 }
+        Rectangle { 
+            anchors.fill: parent
+            color: "black"
+            opacity: 0.7 
+        }
         Image {
             anchors.centerIn: parent
             width: parent.width * 0.9; height: parent.height * 0.9
             source: root.openedImageSource; fillMode: Image.PreserveAspectFit; autoTransform: true
             scale: lightbox.visible ? 1.0 : 0.5
             Behavior on scale { NumberAnimation { duration: 300; easing.type: Easing.OutBack } }
+        }
+        MouseArea {
+            anchors.fill: parent
+            onClicked: root.openedImageSource = ""
         }
         Keys.onSpacePressed: root.openedImageSource = ""
         Keys.onEscapePressed: root.openedImageSource = ""

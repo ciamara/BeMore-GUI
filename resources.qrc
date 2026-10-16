@@ -1,0 +1,23 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>icons/camera.svg</file>
+        <file>icons/music.svg</file>
+        <file>icons/controller.svg</file>
+        <file>icons/poweron.svg</file>
+        <file>icons/sprocket.svg</file>
+        <file>icons/wallpaper.jpg</file>
+        <file>icons/back.svg</file>
+        <file>icons/wallpaper.gif</file>
+        <file>icons/wallpapergif2.gif</file>
+        <file>icons/mode.svg</file>
+        <file>icons/battery100.svg</file>
+        <file>icons/battery75.svg</file>
+        <file>icons/battery50.svg</file>
+        <file>icons/battery25.svg</file>
+        <file>icons/thunder.svg</file>
+        <file>icons/wallpaper.svg</file>
+        <file>icons/wallpaper_static.jpg</file>
+        <file>icons/pause.svg</file>
+    </qresource>
+</RCC>

@@ -2,6 +2,7 @@
 #include <QDir>
 #include <QFile>
 #include <QTextStream>
+#include <QDebug>
 
 BatteryHandler::BatteryHandler(QObject *parent) 
     : QObject(parent), m_level("--%")
