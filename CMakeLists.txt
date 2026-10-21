@@ -16,6 +16,7 @@ find_package(Qt5 REQUIRED COMPONENTS
     Quick 
     Svg 
     Multimedia
+    Gamepad
 )
 
 add_executable(BeMore
@@ -32,4 +33,5 @@ target_link_libraries(BeMore PRIVATE
     Qt5::Quick 
     Qt5::Svg
     Qt5::Multimedia
+    Qt5::Gamepad
 )

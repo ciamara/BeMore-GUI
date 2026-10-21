@@ -2,12 +2,23 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QUrl>
+#include <QGamepadManager>
+#include <QDebug>
 
 #include "batteryHandler.h"
 
 int main(int argc, char *argv[])
 {
+    qputenv("QT_GAMEPAD", "evdev");
+
     QGuiApplication app(argc, argv);
+
+    auto *gamepadManager = QGamepadManager::instance();
+    qDebug() << "[C++ Gamepad] Connected gamepads:" << gamepadManager->connectedGamepads();
+
+    QObject::connect(gamepadManager, &QGamepadManager::gamepadConnected, [](int deviceId){
+        qDebug() << "[C++ Gamepad] Gamepad connected with ID:" << deviceId;
+    });
 
     BatteryHandler batteryHandler;
 

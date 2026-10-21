@@ -1,8 +1,9 @@
 import QtQuick 2.15
+import QtQuick.Window 2.15
 import QtQuick.Controls 2.15
 import Qt.labs.folderlistmodel 2.15
 import QtMultimedia 5.15
-import QtQuick.Window 2.15
+import QtGamepad 1.15
 
 Window {
     id: root
@@ -12,9 +13,9 @@ Window {
     title: "BeMore"
     color: "#0f0f0f"
 
-    property string musicFolderPath: "file:///home/proj560/Music"
+    property string musicFolderPath: "file:///home/ciamara/Music"
     property string gamesFolderPath: "file:///home/proj560/Games"
-    property string picturesFolderPath: "file:///home/proj560/Pictures"
+    property string picturesFolderPath: "file:///home/ciamara/Pictures"
 
     // 0-carousel, 1-music, 2-images
     property int currentScreen: 0
@@ -30,6 +31,332 @@ Window {
     property string openedImageSource: ""
 
     property string playingMusicSource: ""
+
+    // pad navigation
+    function navigateLeft() {
+        if (root.openedImageSource !== "") return;
+        
+        if (modeButton.activeFocus) {
+            if (backButton.visible) backButton.forceActiveFocus();
+            return;
+        }
+        if (powerButton.activeFocus) {
+            modeButton.forceActiveFocus();
+            return;
+        }
+
+        if (root.currentScreen === 0) {
+            if (root.wallpaperSettingsMode) wallpaperSettingsCarousel.decrementCurrentIndex()
+            else if (root.settingsMode) settingsCarousel.decrementCurrentIndex()
+            else if (root.gamesMode) gamesCarousel.decrementCurrentIndex()
+            else carousel.decrementCurrentIndex()
+        } else if (root.currentScreen === 1) {
+            backButton.forceActiveFocus()
+        } else if (root.currentScreen === 2) {
+            if (imageGrid.currentIndex % imageGrid.columns === 0) backButton.forceActiveFocus()
+            else imageGrid.currentIndex = Math.max(0, imageGrid.currentIndex - 1)
+        }
+    }
+
+    function navigateRight() {
+        if (root.openedImageSource !== "") return;
+
+        if (backButton.activeFocus) {
+            if (root.currentScreen === 1) musicList.forceActiveFocus()
+            else if (root.currentScreen === 2) imageGrid.forceActiveFocus()
+            return;
+        }
+        if (modeButton.activeFocus) {
+            powerButton.forceActiveFocus()
+            return;
+        }
+
+        if (root.currentScreen === 0) {
+            if (root.wallpaperSettingsMode) wallpaperSettingsCarousel.incrementCurrentIndex()
+            else if (root.settingsMode) settingsCarousel.incrementCurrentIndex()
+            else if (root.gamesMode) gamesCarousel.incrementCurrentIndex()
+            else carousel.incrementCurrentIndex()
+        } else if (root.currentScreen === 2) {
+            imageGrid.currentIndex = Math.min(imageGrid.count - 1, imageGrid.currentIndex + 1)
+        }
+    }
+
+    function navigateUp() {
+        if (root.openedImageSource !== "") return;
+
+        if (backButton.activeFocus) {
+            modeButton.forceActiveFocus()
+            return;
+        }
+
+        if (root.currentScreen === 0) {
+            if (root.wallpaperSettingsMode) {
+                root.wallpaperSettingsMode = false
+                root.settingsMode = true
+                settingsCarousel.forceActiveFocus()
+            } else if (root.settingsMode) {
+                root.settingsMode = false
+                carousel.forceActiveFocus()
+            } else if (root.gamesMode) {
+                root.gamesMode = false
+                carousel.forceActiveFocus()
+            } else {
+                modeButton.forceActiveFocus()
+            }
+        } else if (root.currentScreen === 1) {
+            if (musicList.currentIndex > 0) musicList.currentIndex--
+            else modeButton.forceActiveFocus()
+        } else if (root.currentScreen === 2) {
+            if (imageGrid.currentIndex >= imageGrid.columns) imageGrid.currentIndex -= imageGrid.columns
+            else modeButton.forceActiveFocus()
+        }
+    }
+
+    function navigateDown() {
+        if (root.openedImageSource !== "") return;
+
+        if (modeButton.activeFocus || powerButton.activeFocus || backButton.activeFocus) {
+            if (root.currentScreen === 0) {
+                if (root.gamesMode) gamesCarousel.forceActiveFocus()
+                else if (root.settingsMode) settingsCarousel.forceActiveFocus()
+                else if (root.wallpaperSettingsMode) wallpaperSettingsCarousel.forceActiveFocus()
+                else carousel.forceActiveFocus()
+            }
+            else if (root.currentScreen === 1) musicList.forceActiveFocus()
+            else if (root.currentScreen === 2) imageGrid.forceActiveFocus()
+            return;
+        }
+
+        if (root.currentScreen === 1) {
+            if (musicList.currentIndex < musicList.count - 1) musicList.currentIndex++
+        } else if (root.currentScreen === 2) {
+            if (imageGrid.currentIndex + imageGrid.columns < imageGrid.count) imageGrid.currentIndex += imageGrid.columns
+        }
+    }
+
+    function triggerActionA() {
+        if (root.openedImageSource !== "") {
+            root.openedImageSource = ""
+            return;
+        }
+
+        if (modeButton.activeFocus) {
+            modeButton.clicked();
+            return;
+        }
+        if (powerButton.activeFocus) {
+            powerButton.clicked();
+            return;
+        }
+        if (backButton.activeFocus) {
+            backButton.clicked();
+            return;
+        }
+
+        if (root.currentScreen === 0) {
+            if (root.wallpaperSettingsMode) {
+                root.useAnimatedWallpaper = wallpaperSettingsCarousel.model.get(wallpaperSettingsCarousel.currentIndex).isAnimated
+            } else if (root.settingsMode) {
+                if (settingsCarousel.currentIndex === 0) {
+                    root.wallpaperSettingsMode = true
+                    root.settingsMode = false
+                    wallpaperSettingsCarousel.forceActiveFocus()
+                }
+            } else if (!root.gamesMode) {
+                carousel.selectItem()
+            }
+        } else if (root.currentScreen === 1) {
+            var musicItem = musicList.currentItem
+            if (musicItem) {
+                musicItem.toggleAudio()
+            }
+        } else if (root.currentScreen === 2) {
+            if (imageGrid.currentItem) {
+                root.openedImageSource = imageGrid.currentItem.currentImgSrc
+            }
+        }
+    }
+
+    function triggerActionB() {
+        if (root.openedImageSource !== "") {
+            root.openedImageSource = ""
+        } else if (root.currentScreen !== 0) {
+            root.currentScreen = 0
+            root.gamesMode = false
+            carousel.forceActiveFocus()
+        } else if (root.wallpaperSettingsMode) {
+            root.wallpaperSettingsMode = false
+            root.settingsMode = true
+            settingsCarousel.forceActiveFocus()
+        } else if (root.settingsMode) {
+            root.settingsMode = false
+            carousel.forceActiveFocus()
+        } else if (root.gamesMode) {
+            root.gamesMode = false
+            carousel.forceActiveFocus()
+        }
+    }
+
+    // auto repeats for carousel
+    Timer {
+        id: repeatTimerX
+        interval: 150
+        repeat: true
+        property int direction: 0
+        onTriggered: direction === -1 ? root.navigateLeft() : root.navigateRight()
+    }
+    Timer {
+        id: delayTimerX
+        interval: 400
+        repeat: false
+        onTriggered: repeatTimerX.start()
+    }
+
+    Timer {
+        id: repeatTimerY
+        interval: 150
+        repeat: true
+        property int direction: 0
+        onTriggered: direction === -1 ? root.navigateUp() : root.navigateDown()
+    }
+    Timer {
+        id: delayTimerY
+        interval: 400
+        repeat: false
+        onTriggered: repeatTimerY.start()
+    }
+
+    // pad connection and usage
+    Connections {
+        target: GamepadManager
+        function onGamepadConnected(deviceId) {
+            console.log("[QML Gamepad] Connected pad, ID:", deviceId)
+            gamepad.deviceId = deviceId
+        }
+        function onGamepadDisconnected(deviceId) {
+            console.log("[QML Gamepad] Disconnected pad, ID:", deviceId)
+            if (gamepad.deviceId === deviceId) {
+                gamepad.deviceId = -1
+            }
+        }
+    }
+
+    Gamepad {
+        id: gamepad
+        deviceId: 0
+
+        Component.onCompleted: {
+            if (GamepadManager.connectedGamepads.length > 0) {
+                deviceId = GamepadManager.connectedGamepads[0]
+            }
+        }
+
+        onDeviceIdChanged: {
+        }
+
+        onButtonAChanged: {
+            if (buttonA) {
+                root.triggerActionA()
+            }
+        }
+        onButtonBChanged: {
+            if (buttonB) {
+                root.triggerActionB()
+            }
+        }
+
+        onButtonLeftChanged: {
+            if (buttonLeft) {
+                root.navigateLeft()
+                repeatTimerX.direction = -1
+                delayTimerX.start()
+            } else if (!buttonRight && repeatTimerX.direction === -1) {
+                delayTimerX.stop(); repeatTimerX.stop()
+            }
+        }
+        onButtonRightChanged: {
+            if (buttonRight) {
+                root.navigateRight()
+                repeatTimerX.direction = 1
+                delayTimerX.start()
+            } else if (!buttonLeft && repeatTimerX.direction === 1) {
+                delayTimerX.stop(); repeatTimerX.stop()
+            }
+        }
+
+        // d-pad
+        onButtonUpChanged: {
+            if (buttonUp) {
+                root.navigateUp()
+                repeatTimerY.direction = -1
+                delayTimerY.start()
+            } else if (!buttonDown && repeatTimerY.direction === -1) {
+                delayTimerY.stop(); repeatTimerY.stop()
+            }
+        }
+        onButtonDownChanged: {
+            if (buttonDown) {
+                root.navigateDown()
+                repeatTimerY.direction = 1
+                delayTimerY.start()
+            } else if (!buttonUp && repeatTimerY.direction === 1) {
+                delayTimerY.stop(); repeatTimerY.stop()
+            }
+        }
+
+        // left joystick
+        property bool axisXHeld: false
+        onAxisLeftXChanged: {
+            if (axisLeftX < -0.55) {
+                if (!axisXHeld) {
+                    axisXHeld = true
+                    root.navigateLeft()
+                    repeatTimerX.direction = -1
+                    delayTimerX.start()
+                }
+            } else if (axisLeftX > 0.55) {
+                if (!axisXHeld) {
+                    axisXHeld = true
+                    root.navigateRight()
+                    repeatTimerX.direction = 1
+                    delayTimerX.start()
+                }
+            } else if (Math.abs(axisLeftX) < 0.25) {
+                if (axisXHeld) {
+                    axisXHeld = false
+                    if (!buttonLeft && !buttonRight) {
+                        delayTimerX.stop(); repeatTimerX.stop()
+                    }
+                }
+            }
+        }
+
+        property bool axisYHeld: false
+        onAxisLeftYChanged: {
+            if (axisLeftY < -0.55) {
+                if (!axisYHeld) {
+                    axisYHeld = true
+                    root.navigateUp()
+                    repeatTimerY.direction = -1
+                    delayTimerY.start()
+                }
+            } else if (axisLeftY > 0.55) {
+                if (!axisYHeld) {
+                    axisYHeld = true
+                    root.navigateDown()
+                    repeatTimerY.direction = 1
+                    delayTimerY.start()
+                }
+            } else if (Math.abs(axisLeftY) < 0.25) {
+                if (axisYHeld) {
+                    axisYHeld = false
+                    if (!buttonUp && !buttonDown) {
+                        delayTimerY.stop(); repeatTimerY.stop()
+                    }
+                }
+            }
+        }
+    }
 
     MediaPlayer {
         id: audioPlayer
