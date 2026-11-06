@@ -96,11 +96,11 @@ void GamepadHandler::handleButton(int button, bool isDown)
         dpadUp_ = isDown;
         updateDirection();
         break;
-    case SDL_CONTROLLER_BUTTON_DPAD_DOWN: 
+    case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
         dpadDown_ = isDown;
         updateDirection();
         break;
-    case SDL_CONTROLLER_BUTTON_DPAD_LEFT: 
+    case SDL_CONTROLLER_BUTTON_DPAD_LEFT:
         dpadLeft_ = isDown;
         updateDirection();
         break;

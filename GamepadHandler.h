@@ -44,4 +44,4 @@ private:
     bool start_ = false;
 };
 
-#endif // GAMEPAD_HANDLER_H 
+#endif // GAMEPAD_HANDLER_H

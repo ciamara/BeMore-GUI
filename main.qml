@@ -11,9 +11,9 @@ Window {
     title: "BeMore"
     color: "#0f0f0f"
 
-    property string musicFolderPath: "file://~/Music"
-    property string gamesFolderPath: "file://~/Games"
-    property string picturesFolderPath: "file://~/Pictures"
+    property string musicFolderPath: "file:///home/proj560/Music"
+    property string gamesFolderPath: "file:///home/proj560/Games"
+    property string picturesFolderPath: "file:///home/proj560/Pictures"
 
     // 0-carousel, 1-music, 2-images
     property int currentScreen: 0
@@ -29,6 +29,11 @@ Window {
     property string openedImageSource: ""
 
     property string playingMusicSource: ""
+
+    function isVideo(sourceUrl) {
+        var urlStr = sourceUrl.toString().toLowerCase();
+        return urlStr.endsWith(".mp4") || urlStr.endsWith(".mkv") || urlStr.endsWith(".webm") || urlStr.endsWith(".avi") || urlStr.endsWith(".mov");
+    }
 
     MediaPlayer {
         id: audioPlayer
@@ -51,10 +56,10 @@ Window {
 
         Image {
             anchors.fill: parent
-            source: "icons/wallpaper_static.jpg" 
+            source: "icons/wallpaper_static.jpg"
             fillMode: Image.PreserveAspectCrop
             opacity: 0.8
-            visible: !root.useAnimatedWallpaper 
+            visible: !root.useAnimatedWallpaper
         }
 
         AnimatedImage {
@@ -71,7 +76,7 @@ Window {
     Button {
         id: backButton
         visible: root.currentScreen !== 0 && root.openedImageSource === ""
-        z: 200 
+        z: 200
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: parent.left
         anchors.leftMargin: 25
@@ -88,7 +93,7 @@ Window {
         contentItem: Image {
             source: "icons/back.svg"
             fillMode: Image.PreserveAspectFit
-            opacity: backButton.activeFocus ? 1.0 : 0.4 
+            opacity: backButton.activeFocus ? 1.0 : 0.4
             Behavior on opacity { NumberAnimation { duration: 200 } }
         }
     }
@@ -143,7 +148,7 @@ Window {
             width: 80; height: 80
             Keys.onSpacePressed: clicked()
             KeyNavigation.left: backButton.visible ? backButton : null
-            KeyNavigation.right: powerButton 
+            KeyNavigation.right: powerButton
 
             Keys.onDownPressed: {
                 if (root.currentScreen === 0) {
@@ -190,7 +195,7 @@ Window {
             spacing: 8
 
             Image {
-                source: "icons/thunder.svg" 
+                source: "icons/thunder.svg"
                 width: 22; height: 22
                 fillMode: Image.PreserveAspectFit
                 anchors.verticalCenter: parent.verticalCenter
@@ -224,7 +229,7 @@ Window {
                 font.pixelSize: 18
                 font.bold: true
                 anchors.verticalCenter: parent.verticalCenter
-                text: BatteryContext.level 
+                text: BatteryContext.level
             }
         }
 
@@ -251,7 +256,7 @@ Window {
         visible: root.currentScreen === 0
 
         enabled: visible && root.openedImageSource === "" && !root.gamesMode && !root.settingsMode
-        focus: true 
+        focus: true
         Component.onCompleted: carousel.forceActiveFocus()
 
         model: ListModel {
@@ -259,7 +264,6 @@ Window {
             ListElement { title: "IMAGES"; icon: "icons/camera.svg" }
             ListElement { title: "GAMES"; icon: "icons/controller.svg" }
             ListElement { title: "SETTINGS"; icon: "icons/sprocket.svg" }
-            ListElement { title: "VIDEOS"; icon: "icons/mode.svg" }
         }
 
         Keys.onUpPressed: modeButton.forceActiveFocus()
@@ -271,7 +275,6 @@ Window {
             else if (currentIndex === 1) { root.currentScreen = 2; imageGrid.forceActiveFocus() }
             else if (currentIndex === 2) { root.gamesMode = true; gamesCarousel.forceActiveFocus() }
             else if (currentIndex === 3) { root.settingsMode = true; settingsCarousel.forceActiveFocus() }
-            else if (currentIndex === 4) { root.settingsMode = true; settingsCarousel.forceActiveFocus() }
         }
 
         Keys.onReturnPressed: selectItem()
@@ -297,10 +300,18 @@ Window {
             scale: isCurrent ? 1.2 : 0.7
             z: isCurrent ? 10 : 1
 
-            Image { 
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    carousel.currentIndex = index
+                    carousel.selectItem()
+                }
+            }
+
+            Image {
                 anchors.centerIn: parent
                 source: model.icon
-                width: 100; height: 100; fillMode: Image.PreserveAspectFit 
+                width: 100; height: 100; fillMode: Image.PreserveAspectFit
             }
 
             Behavior on opacity { NumberAnimation { duration: 250 } }
@@ -384,16 +395,14 @@ Window {
     //indicator of current suboption if depth > 2
     Image {
         id: floatingIndicator
-        anchors.bottom: wallpaperSettingsCarousel.top 
+        anchors.bottom: wallpaperSettingsCarousel.top
         anchors.bottomMargin: -118
         anchors.horizontalCenter: parent.horizontalCenter
 
         width: 60
         height: 60
         fillMode: Image.PreserveAspectFit
-
-        visible: root.wallpaperSettingsMode // || root.otherSettingsMode
-
+        visible: root.wallpaperSettingsMode
         source: {
             if (settingsCarousel.model.count > 0) {
                 return settingsCarousel.model.get(settingsCarousel.currentIndex).icon
@@ -529,6 +538,7 @@ Window {
         delegate: Item {
             width: 150; height: 150
             readonly property bool isCurrent: PathView.isCurrentItem
+            readonly property var gameImgUrl: typeof fileUrl !== "undefined" ? fileUrl : (typeof fileURL !== "undefined" ? fileURL : "")
             z: isCurrent ? 10 : 1
 
             Rectangle {
@@ -541,7 +551,7 @@ Window {
                 Image {
                     anchors.fill: parent
                     anchors.margins: 5
-                    source: fileURL
+                    source: gameImgUrl
                     fillMode: Image.PreserveAspectCrop
                 }
 
@@ -572,13 +582,13 @@ Window {
         }
 
         delegate: Item {
+            id: musicItemDelegate
             width: musicList.width; height: 80
 
-            readonly property string currentFileUrl: fileURL.toString()
+            readonly property string currentFileUrl: (typeof fileUrl !== "undefined" ? fileUrl : (typeof fileURL !== "undefined" ? fileURL : "")).toString()
             readonly property bool isPlayingThis: root.playingMusicSource === currentFileUrl
 
-            // play/pause
-            Keys.onSpacePressed: {
+            function toggleAudio() {
                 if (isPlayingThis) {
                     if (audioPlayer.playbackState === MediaPlayer.PlayingState) {
                         audioPlayer.pause()
@@ -591,6 +601,16 @@ Window {
                 }
             }
 
+            Keys.onSpacePressed: toggleAudio()
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    musicList.currentIndex = index
+                    musicItemDelegate.toggleAudio()
+                }
+            }
+
             Row {
                 anchors.centerIn: parent
                 spacing: 15
@@ -600,8 +620,7 @@ Window {
                     source: {
                         if (audioPlayer.playbackState === MediaPlayer.PlayingState){
                             "icons/music.svg"
-                        }
-                        else if (audioPlayer.playbackState === MediaPlayer.PausedState){
+                        } else {
                             "icons/pause.svg"
                         }
                     }
@@ -613,7 +632,7 @@ Window {
                 }
 
                 Text {
-                    text: fileName
+                    text: typeof fileName !== "undefined" ? fileName : ""
                     color: isPlayingThis ? "#83916A" : "#cac5d9"
                     font.pixelSize: (parent.parent.ListView.isCurrentItem && musicList.activeFocus) ? 32 : 20
                     font.bold: (parent.parent.ListView.isCurrentItem && musicList.activeFocus)
@@ -623,7 +642,7 @@ Window {
         }
     }
 
-    //image grid
+    // image and video grid
     GridView {
         id: imageGrid
         anchors.fill: parent
@@ -632,40 +651,169 @@ Window {
         cellWidth: 240; cellHeight: 240; clip: true; focus: true
 
         readonly property int columns: Math.floor(width / cellWidth)
-        Keys.onUpPressed: (event) => { if (currentIndex < columns) modeButton.forceActiveFocus(); else event.accepted = false; }
-        Keys.onLeftPressed: (event) => { if (currentIndex % columns === 0) backButton.forceActiveFocus(); else event.accepted = false; }
+        Keys.onUpPressed: function(event) { if (currentIndex < columns) modeButton.forceActiveFocus(); else event.accepted = false; }
+        Keys.onLeftPressed: function(event) { if (currentIndex % columns === 0) backButton.forceActiveFocus(); else event.accepted = false; }
         Keys.onEscapePressed: { root.currentScreen = 0; carousel.forceActiveFocus() }
 
         model: FolderListModel {
             folder: root.picturesFolderPath
-            nameFilters: ["*.jpg", "*.JPG", "*.png", "*.PNG", "*.jpeg", "*.JPEG"]; showDirs: false
+            nameFilters: ["*.jpg", "*.JPG", "*.png", "*.PNG", "*.jpeg", "*.JPEG", "*.mp4", "*.MP4", "*.mkv", "*.MKV", "*.webm", "*.avi"]
+            showDirs: false
         }
 
         delegate: Item {
             width: 220; height: 220
-            Keys.onSpacePressed: root.openedImageSource = fileURL
+            readonly property var currentImgSrc: typeof fileUrl !== "undefined" ? fileUrl : (typeof fileURL !== "undefined" ? fileURL : "")
+            readonly property bool isVid: root.isVideo(currentImgSrc)
+
+            Keys.onSpacePressed: root.openedImageSource = currentImgSrc
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    imageGrid.currentIndex = index
+                    root.openedImageSource = currentImgSrc
+                }
+            }
+
             Rectangle {
                 anchors.fill: parent; color: "transparent"
                 border.color: "#cac5d9"; border.width: (parent.GridView.isCurrentItem && imageGrid.activeFocus) ? 2 : 0
-                Image { anchors.fill: parent; anchors.margins: 5; source: fileURL; fillMode: Image.PreserveAspectCrop; autoTransform: true }
+
+                Image {
+                    id: thumbImage
+                    anchors.fill: parent
+                    anchors.margins: 5
+
+                    asynchronous: true
+
+                    source: {
+                        if (!isVid) {
+                            return currentImgSrc;
+                        } else {
+                            var path = currentImgSrc.toString();
+                            if (path.startsWith("file://")) {
+                                path = path.substring(7);
+                            }
+                            return "image://vidthumb/" + path;
+                        }
+                    }
+
+                    fillMode: Image.PreserveAspectCrop
+                    autoTransform: true
+                }
+
+                Rectangle {
+                    anchors.centerIn: parent
+                    width: 50; height: 50
+                    radius: 25
+                    color: "#000000"
+                    opacity: 0.6
+                    visible: isVid
+
+                    Text {
+                        anchors.centerIn: parent
+                        anchors.horizontalCenterOffset: 3
+                        text: "▶"
+                        color: "white"
+                        font.pixelSize: 24
+                    }
+                }
             }
         }
     }
 
-    //enlarged image
+    //enlarged image / video player
     Item {
         id: lightbox
-        anchors.fill: parent; visible: root.openedImageSource !== ""; z: 1000; focus: visible 
-        Rectangle { anchors.fill: parent; color: "black"; opacity: 0.7 }
-        Image {
+        anchors.fill: parent; visible: root.openedImageSource !== ""; z: 1000; focus: visible
+
+        property bool isVid: root.isVideo(root.openedImageSource)
+
+        function togglePlayPause() {
+            if (videoPlayer.playbackState === MediaPlayer.PlayingState) {
+                videoPlayer.pause()
+            } else {
+                videoPlayer.play()
+            }
+        }
+
+        Rectangle {
+            anchors.fill: parent
+            color: "black"
+            opacity: lightbox.isVid ? 0.9 : 0.7
+        }
+
+        MediaPlayer {
+            id: videoPlayer
+            source: lightbox.isVid ? root.openedImageSource : ""
+            audioOutput: AudioOutput {}
+            videoOutput: videoOutputItem
+
+            onMediaStatusChanged: {
+                if (status === MediaPlayer.EndOfMedia) {
+                    stop();
+                    play(); // loop
+                }
+            }
+        }
+
+        VideoOutput {
+            id: videoOutputItem
             anchors.centerIn: parent
             width: parent.width * 0.9; height: parent.height * 0.9
-            source: root.openedImageSource; fillMode: Image.PreserveAspectFit; autoTransform: true
+            fillMode: VideoOutput.PreserveAspectFit
+            visible: lightbox.isVid
             scale: lightbox.visible ? 1.0 : 0.5
             Behavior on scale { NumberAnimation { duration: 300; easing.type: Easing.OutBack } }
         }
-        Keys.onSpacePressed: root.openedImageSource = ""
+
+        Image {
+            anchors.centerIn: parent
+            width: parent.width * 0.9; height: parent.height * 0.9
+            source: lightbox.isVid ? "" : root.openedImageSource
+            fillMode: Image.PreserveAspectFit; autoTransform: true
+            visible: !lightbox.isVid
+            scale: lightbox.visible ? 1.0 : 0.5
+            Behavior on scale { NumberAnimation { duration: 300; easing.type: Easing.OutBack } }
+        }
+
+        Image {
+            anchors.centerIn: parent
+            source: "icons/pause.svg"
+            width: 80; height: 80
+            opacity: (lightbox.isVid && videoPlayer.playbackState !== MediaPlayer.PlayingState) ? 0.7 : 0.0
+            Behavior on opacity { NumberAnimation { duration: 200 } }
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            onClicked: {
+                if (lightbox.isVid) {
+                    lightbox.togglePlayPause()
+                } else {
+                    root.openedImageSource = ""
+                }
+            }
+        }
+
+        Keys.onSpacePressed: {
+            if (lightbox.isVid) {
+                lightbox.togglePlayPause()
+            } else {
+                root.openedImageSource = ""
+            }
+        }
+
         Keys.onEscapePressed: root.openedImageSource = ""
-        onVisibleChanged: if (!visible) imageGrid.forceActiveFocus()
+
+        onVisibleChanged: {
+            if (!visible) {
+                videoPlayer.stop()
+                imageGrid.forceActiveFocus()
+            } else {
+                if (isVid) videoPlayer.play()
+            }
+        }
     }
 }

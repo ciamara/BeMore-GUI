@@ -17,9 +17,9 @@
 - Animated wallpaper
 
 ## Gallery
-Base view, visible main carousel and options    
-![base view](md_thumbnails/starter.png)    
-View with the games folder open     
-![games open](md_thumbnails/games.png)   
-View with the mp3/music folder open    
+Base view, visible main carousel and options
+![base view](md_thumbnails/starter.png)
+View with the games folder open
+![games open](md_thumbnails/games.png)
+View with the mp3/music folder open
 ![music open](md_thumbnails/mp3.png)

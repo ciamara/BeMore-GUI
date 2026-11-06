@@ -2,9 +2,10 @@
 #include <QDir>
 #include <QFile>
 #include <QTextStream>
+#include <QDebug>
 
 
-BatteryHandler::BatteryHandler(QObject *parent) 
+BatteryHandler::BatteryHandler(QObject *parent)
     : QObject(parent), level_("--%")
 {
     // battery folder
@@ -28,7 +29,7 @@ BatteryHandler::BatteryHandler(QObject *parent)
     }
 
     connect(&timer_, &QTimer::timeout, this, &BatteryHandler::updateBattery);
-    timer_.start(refresh_rate_ms_); 
+    timer_.start(refresh_rate_ms_);
     updateBattery();
 }
 
