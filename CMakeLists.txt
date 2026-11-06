@@ -23,6 +23,8 @@ add_executable(BeMore
     main.cpp
     batteryHandler.cpp
     batteryHandler.h
+    videoThumbnailProvider.cpp
+    videoThumbnailProvider.h
     resources.qrc
 )
 

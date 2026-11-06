@@ -13,9 +13,9 @@ Window {
     title: "BeMore"
     color: "#0f0f0f"
 
-    property string musicFolderPath: "file:///home/ciamara/Music"
+    property string musicFolderPath: "file:///home/proj560/Music"
     property string gamesFolderPath: "file:///home/proj560/Games"
-    property string picturesFolderPath: "file:///home/ciamara/Pictures"
+    property string picturesFolderPath: "file:///home/proj560/Pictures"
 
     // 0-carousel, 1-music, 2-images
     property int currentScreen: 0
@@ -31,6 +31,11 @@ Window {
     property string openedImageSource: ""
 
     property string playingMusicSource: ""
+
+    function isVideo(sourceUrl) {
+        var urlStr = sourceUrl.toString().toLowerCase();
+        return urlStr.endsWith(".mp4") || urlStr.endsWith(".mkv") || urlStr.endsWith(".webm") || urlStr.endsWith(".avi") || urlStr.endsWith(".mov");
+    }
 
     // pad navigation
     function navigateLeft() {
@@ -136,7 +141,10 @@ Window {
 
     function triggerActionA() {
         if (root.openedImageSource !== "") {
-            root.openedImageSource = ""
+            if (lightbox.isVid) {
+                lightbox.togglePlayPause()
+            } else {
+            }
             return;
         }
 
@@ -944,7 +952,7 @@ Window {
         }
     }
 
-    //image grid
+    // image and video grid
     GridView {
         id: imageGrid
         anchors.fill: parent
@@ -959,12 +967,14 @@ Window {
 
         model: FolderListModel {
             folder: root.picturesFolderPath
-            nameFilters: ["*.jpg", "*.JPG", "*.png", "*.PNG", "*.jpeg", "*.JPEG"]; showDirs: false
+            nameFilters: ["*.jpg", "*.JPG", "*.png", "*.PNG", "*.jpeg", "*.JPEG", "*.mp4", "*.MP4", "*.mkv", "*.MKV", "*.webm", "*.avi"]
+            showDirs: false
         }
         
         delegate: Item {
             width: 220; height: 220
             readonly property var currentImgSrc: typeof fileUrl !== "undefined" ? fileUrl : (typeof fileURL !== "undefined" ? fileURL : "")
+            readonly property bool isVid: root.isVideo(currentImgSrc)
 
             Keys.onSpacePressed: root.openedImageSource = currentImgSrc
 
@@ -979,39 +989,138 @@ Window {
             Rectangle {
                 anchors.fill: parent; color: "transparent"
                 border.color: "#cac5d9"; border.width: (parent.GridView.isCurrentItem && imageGrid.activeFocus) ? 2 : 0
+                
                 Image { 
+                    id: thumbImage
                     anchors.fill: parent
                     anchors.margins: 5
-                    source: currentImgSrc
+                    
+                    asynchronous: true
+                    
+                    source: {
+                        if (!isVid) {
+                            return currentImgSrc;
+                        } else {
+                            var path = currentImgSrc.toString();
+                            if (path.startsWith("file://")) {
+                                path = path.substring(7);
+                            }
+                            return "image://vidthumb/" + path;
+                        }
+                    }
+                    
                     fillMode: Image.PreserveAspectCrop
                     autoTransform: true 
+                }
+
+                Rectangle {
+                    anchors.centerIn: parent
+                    width: 50; height: 50
+                    radius: 25
+                    color: "#000000"
+                    opacity: 0.6
+                    visible: isVid
+                    
+                    Text {
+                        anchors.centerIn: parent
+                        anchors.horizontalCenterOffset: 3
+                        text: "▶"
+                        color: "white"
+                        font.pixelSize: 24
+                    }
                 }
             }
         }
     }
 
-    //enlarged image
+    //enlarged image / video player
     Item {
         id: lightbox
         anchors.fill: parent; visible: root.openedImageSource !== ""; z: 1000; focus: visible 
+        
+        property bool isVid: root.isVideo(root.openedImageSource)
+
+        function togglePlayPause() {
+            if (videoPlayer.playbackState === MediaPlayer.PlayingState) {
+                videoPlayer.pause()
+            } else {
+                videoPlayer.play()
+            }
+        }
+
         Rectangle { 
             anchors.fill: parent
             color: "black"
-            opacity: 0.7 
+            opacity: lightbox.isVid ? 0.9 : 0.7
         }
-        Image {
+
+        MediaPlayer {
+            id: videoPlayer
+            source: lightbox.isVid ? root.openedImageSource : ""
+            onStatusChanged: {
+                if (status === MediaPlayer.EndOfMedia) {
+                    stop();
+                    play(); // loop
+                }
+            }
+        }
+
+        VideoOutput {
             anchors.centerIn: parent
             width: parent.width * 0.9; height: parent.height * 0.9
-            source: root.openedImageSource; fillMode: Image.PreserveAspectFit; autoTransform: true
+            source: videoPlayer
+            fillMode: VideoOutput.PreserveAspectFit
+            visible: lightbox.isVid
             scale: lightbox.visible ? 1.0 : 0.5
             Behavior on scale { NumberAnimation { duration: 300; easing.type: Easing.OutBack } }
         }
+
+        Image {
+            anchors.centerIn: parent
+            width: parent.width * 0.9; height: parent.height * 0.9
+            source: lightbox.isVid ? "" : root.openedImageSource
+            fillMode: Image.PreserveAspectFit; autoTransform: true
+            visible: !lightbox.isVid
+            scale: lightbox.visible ? 1.0 : 0.5
+            Behavior on scale { NumberAnimation { duration: 300; easing.type: Easing.OutBack } }
+        }
+
+        Image {
+            anchors.centerIn: parent
+            source: "icons/pause.svg"
+            width: 80; height: 80
+            opacity: (lightbox.isVid && videoPlayer.playbackState !== MediaPlayer.PlayingState) ? 0.7 : 0.0
+            Behavior on opacity { NumberAnimation { duration: 200 } }
+        }
+
         MouseArea {
             anchors.fill: parent
-            onClicked: root.openedImageSource = ""
+            onClicked: {
+                if (lightbox.isVid) {
+                    lightbox.togglePlayPause()
+                } else {
+                    root.openedImageSource = ""
+                }
+            }
         }
-        Keys.onSpacePressed: root.openedImageSource = ""
+
+        Keys.onSpacePressed: {
+            if (lightbox.isVid) {
+                lightbox.togglePlayPause()
+            } else {
+                root.openedImageSource = ""
+            }
+        }
+
         Keys.onEscapePressed: root.openedImageSource = ""
-        onVisibleChanged: if (!visible) imageGrid.forceActiveFocus()
+
+        onVisibleChanged: {
+            if (!visible) {
+                videoPlayer.stop()
+                imageGrid.forceActiveFocus()
+            } else {
+                if (isVid) videoPlayer.play()
+            }
+        }
     }
 }

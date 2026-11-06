@@ -6,6 +6,7 @@
 #include <QDebug>
 
 #include "batteryHandler.h"
+#include "videoThumbnailProvider.h"
 
 int main(int argc, char *argv[])
 {
@@ -24,6 +25,7 @@ int main(int argc, char *argv[])
 
     QQmlApplicationEngine engine;
 
+    engine.addImageProvider(QLatin1String("vidthumb"), new VideoThumbnailProvider);
     engine.rootContext()->setContextProperty("BatteryContext", &batteryHandler);
 
     const QUrl url(QStringLiteral("qrc:/main.qml"));
