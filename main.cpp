@@ -5,8 +5,8 @@
 #include <QGamepadManager>
 #include <QDebug>
 
-#include "batteryHandler.h"
-#include "videoThumbnailProvider.h"
+#include "BatteryHandler.h"
+#include "VideoThumbnailProvider.h"
 
 int main(int argc, char *argv[])
 {

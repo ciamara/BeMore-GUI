@@ -1,4 +1,4 @@
-#include "videoThumbnailProvider.h"
+#include "VideoThumbnailProvider.h"
 #include <QProcess>
 #include <QColor>
 #include <QStringList>

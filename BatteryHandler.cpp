@@ -1,4 +1,4 @@
-#include "batteryHandler.h"
+#include "BatteryHandler.h"
 #include <QDir>
 #include <QFile>
 #include <QTextStream>

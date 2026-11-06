@@ -21,10 +21,10 @@ find_package(Qt5 REQUIRED COMPONENTS
 
 add_executable(BeMore
     main.cpp
-    batteryHandler.cpp
-    batteryHandler.h
-    videoThumbnailProvider.cpp
-    videoThumbnailProvider.h
+    BatteryHandler.cpp
+    BatteryHandler.h
+    VideoThumbnailProvider.cpp
+    VideoThumbnailProvider.h
     resources.qrc
 )
 
