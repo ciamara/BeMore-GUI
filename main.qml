@@ -11,9 +11,9 @@ Window {
     title: "BeMore"
     color: "#0f0f0f"
 
-    property string musicFolderPath: "file:///home/proj560/Music"
-    property string gamesFolderPath: "file:///home/proj560/Games"
-    property string picturesFolderPath: "file:///home/proj560/Pictures"
+    property string musicFolderPath: "file://~/Music"
+    property string gamesFolderPath: "file://~/Games"
+    property string picturesFolderPath: "file://~/Pictures"
 
     // 0-carousel, 1-music, 2-images
     property int currentScreen: 0
@@ -59,7 +59,7 @@ Window {
 
         AnimatedImage {
             anchors.fill: parent
-            source: "icons/wallpapergif2.gif"
+            source: "icons/wallpaper_moving.gif"
             fillMode: Image.PreserveAspectCrop
             opacity: 0.8
             playing: root.useAnimatedWallpaper
@@ -77,13 +77,13 @@ Window {
         anchors.leftMargin: 25
         width: 70
         height: 70
-        
+
         onClicked: {
             root.currentScreen = 0
             root.gamesMode = false
             carousel.forceActiveFocus()
         }
-        
+
         background: null
         contentItem: Image {
             source: "icons/back.svg"
@@ -144,7 +144,7 @@ Window {
             Keys.onSpacePressed: clicked()
             KeyNavigation.left: backButton.visible ? backButton : null
             KeyNavigation.right: powerButton 
-            
+
             Keys.onDownPressed: {
                 if (root.currentScreen === 0) {
                     if (root.gamesMode) gamesCarousel.forceActiveFocus()
@@ -203,14 +203,14 @@ Window {
                 fillMode: Image.PreserveAspectFit
                 anchors.verticalCenter: parent.verticalCenter
                 opacity: 1.0
-    
+
                 source: {
                     var level = parseInt(BatteryContext.level);
 
                     if (isNaN(level)) {
                         return "icons/battery100.svg";
                     }
-                    
+
                     if (level > 75) return "icons/battery100.svg";
                     else if (level > 50) return "icons/battery75.svg";
                     else if (level > 25) return "icons/battery50.svg";
@@ -259,17 +259,19 @@ Window {
             ListElement { title: "IMAGES"; icon: "icons/camera.svg" }
             ListElement { title: "GAMES"; icon: "icons/controller.svg" }
             ListElement { title: "SETTINGS"; icon: "icons/sprocket.svg" }
+            ListElement { title: "VIDEOS"; icon: "icons/mode.svg" }
         }
 
         Keys.onUpPressed: modeButton.forceActiveFocus()
         Keys.onLeftPressed: decrementCurrentIndex()
         Keys.onRightPressed: incrementCurrentIndex()
-        
+
         function selectItem() {
             if (currentIndex === 0) { root.currentScreen = 1; musicList.forceActiveFocus() }
             else if (currentIndex === 1) { root.currentScreen = 2; imageGrid.forceActiveFocus() }
             else if (currentIndex === 2) { root.gamesMode = true; gamesCarousel.forceActiveFocus() }
             else if (currentIndex === 3) { root.settingsMode = true; settingsCarousel.forceActiveFocus() }
+            else if (currentIndex === 4) { root.settingsMode = true; settingsCarousel.forceActiveFocus() }
         }
 
         Keys.onReturnPressed: selectItem()
@@ -291,7 +293,7 @@ Window {
             readonly property bool isCurrent: PathView.isCurrentItem
 
             opacity: (isCurrent && carousel.activeFocus) ? 1.0 : (isCurrent ? 0.4 : 0.3)
-            
+
             scale: isCurrent ? 1.2 : 0.7
             z: isCurrent ? 10 : 1
 
@@ -325,6 +327,10 @@ Window {
             root.settingsMode = false
             carousel.forceActiveFocus()
         }
+        Keys.onEscapePressed: {
+            root.settingsMode = false
+            carousel.forceActiveFocus()
+        }
         Keys.onLeftPressed: decrementCurrentIndex()
         Keys.onRightPressed: incrementCurrentIndex()
 
@@ -351,21 +357,21 @@ Window {
             width: 150; height: 150
             readonly property bool isCurrent: PathView.isCurrentItem
             z: isCurrent ? 10 : 1
-            
+
             Rectangle {
                 anchors.fill: parent
                 anchors.margins: 10
                 color: "transparent"
                 border.color: "transparent"
                 border.width: 3
-                
+
                 Image {
                     anchors.fill: parent
                     anchors.margins: 5
                     source: model.icon
                     fillMode: Image.PreserveAspectFit
                 }
-                
+
                 opacity: isCurrent ? 1.0 : 0.3
                 scale: isCurrent ? 1.1 : 0.7
                 Behavior on scale { NumberAnimation { duration: 200 } }
@@ -381,20 +387,20 @@ Window {
         anchors.bottom: wallpaperSettingsCarousel.top 
         anchors.bottomMargin: -118
         anchors.horizontalCenter: parent.horizontalCenter
-        
+
         width: 60
         height: 60
         fillMode: Image.PreserveAspectFit
-        
+
         visible: root.wallpaperSettingsMode // || root.otherSettingsMode
-        
+
         source: {
             if (settingsCarousel.model.count > 0) {
                 return settingsCarousel.model.get(settingsCarousel.currentIndex).icon
             }
             return ""
         }
-        
+
         opacity: visible ? 0.2 : 0.0
     }
 
@@ -421,6 +427,11 @@ Window {
             root.settingsMode = true
             settingsCarousel.forceActiveFocus()
         }
+        Keys.onEscapePressed: {
+            root.wallpaperSettingsMode = false
+            root.settingsMode = true
+            settingsCarousel.forceActiveFocus()
+        }
         Keys.onLeftPressed: decrementCurrentIndex()
         Keys.onRightPressed: incrementCurrentIndex()
 
@@ -443,23 +454,23 @@ Window {
             width: 150; height: 150
             readonly property bool isCurrent: PathView.isCurrentItem
             z: isCurrent ? 10 : 1
-            
+
             Rectangle {
                 anchors.fill: parent
                 color: "transparent"
-                
+
                 Text {
                     anchors.centerIn: parent
                     text: model.title
 
                     color: (root.useAnimatedWallpaper === model.isAnimated) ? "#83916A" : "#cac5d9"
-                    
+
                     font.pixelSize: (isCurrent && wallpaperSettingsCarousel.activeFocus) ? 42 : 28
                     font.bold: isCurrent
-                    
+
                     Behavior on font.pixelSize { NumberAnimation { duration: 200 } }
                 }
-                
+
                 opacity: isCurrent ? 1.0 : 0.3
                 scale: isCurrent ? 1.1 : 0.7
                 Behavior on scale { NumberAnimation { duration: 200 } }
@@ -485,7 +496,19 @@ Window {
             showDirs: false
         }
 
+        // start the program belonging to the selected thumbnail (see gamelauncher.h)
+        function launchCurrent() {
+            if (count > 0)
+                GameLauncher.launch(model.get(currentIndex, "filePath"))
+        }
+        Keys.onSpacePressed: launchCurrent()
+        Keys.onReturnPressed: launchCurrent()
+
         Keys.onUpPressed: {
+            root.gamesMode = false
+            carousel.forceActiveFocus()
+        }
+        Keys.onEscapePressed: {
             root.gamesMode = false
             carousel.forceActiveFocus()
         }
@@ -507,21 +530,21 @@ Window {
             width: 150; height: 150
             readonly property bool isCurrent: PathView.isCurrentItem
             z: isCurrent ? 10 : 1
-            
+
             Rectangle {
                 anchors.fill: parent
                 anchors.margins: 10
                 color: "transparent"
                 border.color: "transparent"
                 border.width: 3
-                
+
                 Image {
                     anchors.fill: parent
                     anchors.margins: 5
                     source: fileURL
                     fillMode: Image.PreserveAspectCrop
                 }
-                
+
                 opacity: isCurrent ? 1.0 : 0.3
                 scale: isCurrent ? 1.1 : 0.7
                 Behavior on scale { NumberAnimation { duration: 200 } }
@@ -538,7 +561,7 @@ Window {
         clip: true; focus: true
         preferredHighlightBegin: height * 0.45; preferredHighlightEnd: height * 0.5
         highlightRangeMode: ListView.ApplyRange; snapMode: ListView.SnapToItem
-        
+
         Keys.onUpPressed: (event) => { if (currentIndex === 0) modeButton.forceActiveFocus(); else event.accepted = false; }
         Keys.onLeftPressed: backButton.forceActiveFocus()
         Keys.onEscapePressed: { root.currentScreen = 0; carousel.forceActiveFocus() }
@@ -571,7 +594,7 @@ Window {
             Row {
                 anchors.centerIn: parent
                 spacing: 15
-                
+
                 // playing indicator
                 Image {
                     source: {
@@ -607,7 +630,7 @@ Window {
         anchors.topMargin: 135; anchors.leftMargin: 200; anchors.rightMargin: 50; anchors.bottomMargin: 100
         visible: root.currentScreen === 2
         cellWidth: 240; cellHeight: 240; clip: true; focus: true
-        
+
         readonly property int columns: Math.floor(width / cellWidth)
         Keys.onUpPressed: (event) => { if (currentIndex < columns) modeButton.forceActiveFocus(); else event.accepted = false; }
         Keys.onLeftPressed: (event) => { if (currentIndex % columns === 0) backButton.forceActiveFocus(); else event.accepted = false; }
@@ -617,7 +640,7 @@ Window {
             folder: root.picturesFolderPath
             nameFilters: ["*.jpg", "*.JPG", "*.png", "*.PNG", "*.jpeg", "*.JPEG"]; showDirs: false
         }
-        
+
         delegate: Item {
             width: 220; height: 220
             Keys.onSpacePressed: root.openedImageSource = fileURL
