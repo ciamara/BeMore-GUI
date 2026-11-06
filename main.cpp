@@ -2,12 +2,15 @@
 #include <QQmlApplicationEngine>
 #include <QKeyEvent>
 #include <QQmlContext>
+#include <QUrl>
+#include <QDebug>
 #include <QQuickWindow>
 
 #include "BatteryHandler.h"
 #include "Launcher.h"
 #include "GamepadHandler.h"
 #include "WindowManager.h"
+#include "VideoThumbnailProvider.h"
 
 int main(int argc, char *argv[])
 {
@@ -21,6 +24,8 @@ int main(int argc, char *argv[])
     Launcher launcher;
 
     QQmlApplicationEngine engine;
+
+    engine.addImageProvider(QLatin1String("vidthumb"), new VideoThumbnailProvider);
     engine.rootContext()->setContextProperty("BatteryContext", &batteryHandler);
     engine.rootContext()->setContextProperty("Launcher", &launcher);
 

@@ -27,6 +27,9 @@ qt_add_executable(BeMore
     WindowManager.h
     GamepadHandler.cpp
     GamepadHandler.h
+    VideoThumbnailProvider.cpp
+    VideoThumbnailProvider.h
+    resources.qrc
 )
 
 find_package(Qt6 REQUIRED COMPONENTS Gui Qml Quick Svg)
@@ -55,10 +58,10 @@ qt_add_qml_module(BeMore
         icons/pause.svg
 )
 
-target_link_libraries(BeMore PRIVATE 
-    Qt6::Gui 
-    Qt6::Qml 
-    Qt6::Quick 
+target_link_libraries(BeMore PRIVATE
+    Qt6::Gui
+    Qt6::Qml
+    Qt6::Quick
     Qt6::Svg
     Qt6::Multimedia
     PkgConfig::XORG
