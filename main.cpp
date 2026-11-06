@@ -8,6 +8,8 @@
 #include "Launcher.h"
 #include "GamepadHandler.h"
 #include "WindowManager.h"
+#include "VideoPlayer.h"
+#include "VideoThumbnailProvider.h"
 
 int main(int argc, char *argv[])
 {
@@ -19,10 +21,14 @@ int main(int argc, char *argv[])
 
     BatteryHandler batteryHandler;
     Launcher launcher;
+    VideoPlayer videoPlayer;
 
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("BatteryContext", &batteryHandler);
     engine.rootContext()->setContextProperty("Launcher", &launcher);
+    engine.rootContext()->setContextProperty("VideoPlayer", &videoPlayer);
+    engine.addImageProvider(QLatin1String(VideoThumbnailProvider::providerId),
+                            new VideoThumbnailProvider);
 
     const QUrl url(u"qrc:/ConsoleApp/main.qml"_qs);
 
@@ -53,7 +59,8 @@ int main(int argc, char *argv[])
     GamepadHandler pad;
     if (pad.init()) {
         QObject::connect(&pad, &GamepadHandler::keyPressed, &app, [&](int key) {
-            if (!homeWindow || (wmActive && !wm.homeFocused())) return;
+            if (!homeWindow || (wmActive && !wm.homeFocused()))
+                return;
             QKeyEvent press(QEvent::KeyPress, key, Qt::NoModifier);
             QCoreApplication::sendEvent(homeWindow, &press);
             QKeyEvent release(QEvent::KeyRelease, key, Qt::NoModifier);

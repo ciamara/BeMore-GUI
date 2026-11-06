@@ -27,6 +27,10 @@ qt_add_executable(BeMore
     WindowManager.h
     GamepadHandler.cpp
     GamepadHandler.h
+    VideoPlayer.cpp
+    VideoPlayer.h
+    VideoThumbnailProvider.cpp
+    VideoThumbnailProvider.h
 )
 
 find_package(Qt6 REQUIRED COMPONENTS Gui Qml Quick Svg)

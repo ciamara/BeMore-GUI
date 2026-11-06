@@ -1,5 +1,5 @@
-#ifndef GAMEPAD_HANDLER_H
-#define GAMEPAD_HANDLER_H
+#ifndef GAMEPADHANDLER_H
+#define GAMEPADHANDLER_H
 
 // Xbox-style gamepad mapper via SDL2's GameController API
 
@@ -44,4 +44,4 @@ private:
     bool start_ = false;
 };
 
-#endif // GAMEPAD_HANDLER_H 
+#endif // GAMEPADHANDLER_H 

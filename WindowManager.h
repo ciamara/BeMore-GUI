@@ -1,5 +1,5 @@
-#ifndef WINDOW_MANAGER_H
-#define WINDOW_MANAGER_H
+#ifndef WINDOWMANAGER_H
+#define WINDOWMANAGER_H
 
 #include <QAbstractNativeEventFilter>
 #include <QRect>
@@ -39,4 +39,4 @@ private:
     xcb_keycode_t kEsc_ = 0, kTab_ = 0, kF4_ = 0, kRet_ = 0, kQ_ = 0;
 };
 
-#endif // WINDOW_MANAGER_H
+#endif // WINDOWMANAGER_H

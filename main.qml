@@ -11,11 +11,12 @@ Window {
     title: "BeMore"
     color: "#0f0f0f"
 
-    property string musicFolderPath: "file://~/Music"
-    property string gamesFolderPath: "file://~/Games"
-    property string picturesFolderPath: "file://~/Pictures"
+    property string musicFolderPath: "file:///home/proj560/Music"
+    property string gamesFolderPath: "file:///home/proj560/Games"
+    property string picturesFolderPath: "file:///home/proj560/Pictures"
+    property string videosFolderPath: "file:///home/proj560/Videos"
 
-    // 0-carousel, 1-music, 2-images
+    // 0-carousel, 1-music, 2-images, 3-videos
     property int currentScreen: 0
 
     property bool gamesMode: false
@@ -152,6 +153,7 @@ Window {
                 }
                 else if (root.currentScreen === 1) musicList.forceActiveFocus()
                 else if (root.currentScreen === 2) imageGrid.forceActiveFocus()
+                else if (root.currentScreen === 3) videoGrid.forceActiveFocus()
             }
 
             contentItem: Image {
@@ -271,7 +273,7 @@ Window {
             else if (currentIndex === 1) { root.currentScreen = 2; imageGrid.forceActiveFocus() }
             else if (currentIndex === 2) { root.gamesMode = true; gamesCarousel.forceActiveFocus() }
             else if (currentIndex === 3) { root.settingsMode = true; settingsCarousel.forceActiveFocus() }
-            else if (currentIndex === 4) { root.settingsMode = true; settingsCarousel.forceActiveFocus() }
+            else if (currentIndex === 4) { root.currentScreen = 3; videoGrid.forceActiveFocus() }
         }
 
         Keys.onReturnPressed: selectItem()
@@ -652,6 +654,79 @@ Window {
         }
     }
 
+    //video grid (first-frame thumbnails)
+    GridView {
+        id: videoGrid
+        anchors.fill: parent
+        anchors.topMargin: 135; anchors.leftMargin: 200; anchors.rightMargin: 50; anchors.bottomMargin: 100
+        visible: root.currentScreen === 3
+        cellWidth: 240; cellHeight: 240; clip: true
+
+        readonly property int columns: Math.floor(width / cellWidth)
+
+        function playCurrent() {
+            if (count > 0) root.playVideo(model.get(currentIndex, "filePath"))
+        }
+
+        Keys.onSpacePressed: playCurrent()
+        Keys.onReturnPressed: playCurrent()
+        Keys.onUpPressed: (event) => { if (currentIndex < columns) modeButton.forceActiveFocus(); else event.accepted = false; }
+        Keys.onLeftPressed: (event) => { if (currentIndex % columns === 0) backButton.forceActiveFocus(); else event.accepted = false; }
+        Keys.onEscapePressed: { root.currentScreen = 0; carousel.forceActiveFocus() }
+
+        model: FolderListModel {
+            folder: root.videosFolderPath
+            nameFilters: ["*.mp4", "*.mkv", "*.webm", "*.avi", "*.mov", "*.m4v"]
+            caseSensitive: false
+            showDirs: false
+        }
+
+        delegate: Item {
+            width: 220; height: 220
+            readonly property bool isCurrent: GridView.isCurrentItem && videoGrid.activeFocus
+
+            Rectangle {
+                anchors.fill: parent; color: "transparent"
+                border.color: "#cac5d9"; border.width: parent.isCurrent ? 2 : 0
+
+                Rectangle { anchors.fill: parent; anchors.margins: 5; color: "#1a1a1a" }
+                Image {
+                    anchors.fill: parent; anchors.margins: 5
+                    source: VideoPlayer.thumbnailSource(filePath)
+                    fillMode: Image.PreserveAspectCrop
+                    asynchronous: true
+                    autoTransform: true
+                    sourceSize.width: 480
+                }
+                Text {
+                    anchors.centerIn: parent
+                    text: "\u25B6"
+                    color: "#cac5d9"; font.pixelSize: 40
+                    opacity: parent.parent.isCurrent ? 0.9 : 0.0
+                    Behavior on opacity { NumberAnimation { duration: 150 } }
+                }
+                Text {
+                    anchors.left: parent.left; anchors.right: parent.right; anchors.bottom: parent.bottom
+                    anchors.margins: 8
+                    text: fileBaseName
+                    elide: Text.ElideRight
+                    color: "#cac5d9"; font.pixelSize: 14; font.bold: true
+                    style: Text.Outline; styleColor: "#000000"
+                    visible: parent.parent.isCurrent
+                }
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    videoGrid.currentIndex = index
+                    videoGrid.forceActiveFocus()
+                    root.playVideo(filePath)
+                }
+            }
+        }
+    }
+
     //enlarged image
     Item {
         id: lightbox
@@ -667,5 +742,11 @@ Window {
         Keys.onSpacePressed: root.openedImageSource = ""
         Keys.onEscapePressed: root.openedImageSource = ""
         onVisibleChanged: if (!visible) imageGrid.forceActiveFocus()
+    }
+
+    // stop the music and hand the video to the C++ VideoPlayer
+    function playVideo(path) {
+        audioPlayer.pause()
+        VideoPlayer.play(path)
     }
 }
