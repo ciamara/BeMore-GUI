@@ -1,10 +1,11 @@
-#include "batteryHandler.h"
+#include "BatteryHandler.h"
 #include <QDir>
 #include <QFile>
 #include <QTextStream>
 
+
 BatteryHandler::BatteryHandler(QObject *parent) 
-    : QObject(parent), m_level("--%")
+    : QObject(parent), level_("--%")
 {
     // battery folder
     QDir powerSupplyDir("/sys/class/power_supply");
@@ -12,88 +13,86 @@ BatteryHandler::BatteryHandler(QObject *parent)
         QStringList entries = powerSupplyDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
         for (const QString &entry : entries) {
             if (entry.contains("BAT") || entry.contains("battery", Qt::CaseInsensitive)) {
-                m_batteryPath = powerSupplyDir.absoluteFilePath(entry) + "/capacity";
-                m_statusPath = powerSupplyDir.absoluteFilePath(entry) + "/status";
+                batteryPath_ = powerSupplyDir.absoluteFilePath(entry) + "/capacity";
+                statusPath_ = powerSupplyDir.absoluteFilePath(entry) + "/status";
                 break;
             }
         }
     }
 
-    if (m_batteryPath.isEmpty()) {
+    if (batteryPath_.isEmpty()) {
         qDebug() << "[BatteryReader] No battery found. Falling back to VM Test mode.";
     } else {
-        qDebug() << "[BatteryReader] Battery capacity file detected at:" << m_batteryPath;
-        qDebug() << "[BatteryReader] Battery status file detected at:" << m_statusPath;
+        qDebug() << "[BatteryReader] Battery capacity file detected at:" << batteryPath_;
+        qDebug() << "[BatteryReader] Battery status file detected at:" << statusPath_;
     }
 
-    // update every 4min
-    connect(&m_timer, &QTimer::timeout, this, &BatteryHandler::updateBattery);
-    m_timer.start(240000); 
+    connect(&timer_, &QTimer::timeout, this, &BatteryHandler::updateBattery);
+    timer_.start(refresh_rate_ms_); 
     updateBattery();
 }
 
 QString BatteryHandler::level() const
 {
-    return m_level;
+    return level_;
 }
 
 bool BatteryHandler::isCharging() const
 {
-    return m_isCharging;
+    return isCharging_;
 }
 
 void BatteryHandler::updateBattery()
 {
-    if (m_batteryPath.isEmpty()) {
-        if (m_level != "VM Test") {
-            m_level = "VM Test";
+    if (batteryPath_.isEmpty()) {
+        if (level_ != "VM Test") {
+            level_ = "VM Test";
             emit levelChanged();
         }
-        if (!m_isCharging) {
-            m_isCharging = false;
+        if (!isCharging_) {
+            isCharging_ = false;
             emit isChargingChanged();
         }
         return;
     }
 
-    QFile file(m_batteryPath);
+    QFile file(batteryPath_);
     if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QTextStream in(&file);
         QString rawValue = in.readLine().trimmed();
 
         bool ok;
         int intLevel = rawValue.toInt(&ok);
-        
+
         if (ok) {
-            if (intLevel > 100) {
+            if (intLevel > 100)
                 intLevel = 100;
-            }
-            
+
             QString currentLevel = QString::number(intLevel) + "%";
-            
-            if (m_level != currentLevel) {
-                m_level = currentLevel;
+
+            if (level_ != currentLevel) {
+                level_ = currentLevel;
                 emit levelChanged();
             }
         }
         file.close();
     } else {
-        if (m_level != "Error") {
-            m_level = "Error";
+        if (level_ != "Error") {
+            level_ = "Error";
             emit levelChanged();
         }
     }
 
-    if (!m_statusPath.isEmpty()) {
-        QFile statusFile(m_statusPath);
+    if (!statusPath_.isEmpty()) {
+        QFile statusFile(statusPath_);
         if (statusFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
             QTextStream in(&statusFile);
             QString status = in.readLine().trimmed();
-            
+
             bool currentlyCharging = (status == "Charging" || status == "Full");
-            
-            if (m_isCharging != currentlyCharging) {
-                m_isCharging = currentlyCharging;
+
+            if (isCharging_ != currentlyCharging) {
+                isCharging_ = currentlyCharging;
                 emit isChargingChanged();
             }
             statusFile.close();

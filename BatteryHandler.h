@@ -25,11 +25,13 @@ private slots:
     void updateBattery();
 
 private:
-    QString m_level;
-    bool m_isCharging;
-    QString m_batteryPath;
-    QString m_statusPath;
-    QTimer m_timer;
+    QString level_;
+    bool isCharging_;
+    QString batteryPath_;
+    QString statusPath_;
+    QTimer timer_;
+
+    unsigned refresh_rate_ms_ = 60000;
 };
 
 #endif // BATTERYHANDLER_H

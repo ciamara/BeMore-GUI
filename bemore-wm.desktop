@@ -1,0 +1,5 @@
+[Desktop Entry]
+Name=BeMore Console
+Comment=BeMore GUI running as the window manager
+Exec=/usr/local/bin/bemore-wm
+Type=XSession
