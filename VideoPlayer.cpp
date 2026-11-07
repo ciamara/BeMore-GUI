@@ -12,8 +12,9 @@ VideoPlayer::VideoPlayer(QObject *parent)
 
 void VideoPlayer::play(const QString &path)
 {
-    qInfo() << "[VideoPlayer] playing" << path;
-    QProcess::startDetached("mpv", {path});
+    qint64 *pid;
+    QProcess::startDetached("mpv", {path}, {}, pid);
+    qInfo() << "[VideoPlayer] playing" << path << " " << *pid;
 }
 
 QString VideoPlayer::thumbnailSource(const QString &path) const

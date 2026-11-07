@@ -11,6 +11,12 @@ class QWindow;
 class WindowManager : public QAbstractNativeEventFilter
 {
 public:
+    static WindowManager& GetInstance()
+    {
+        static WindowManager instance_;
+        return instance_;
+    }
+
     // Claims the X root window. Returns false (and changes nothing) if we are
     // not on X11 or another window manager is already running.
     bool start(QWindow *home);
@@ -21,7 +27,11 @@ public:
 
     bool nativeEventFilter(const QByteArray &eventType, void *message, qintptr *result) override;
 
+    WindowManager(WindowManager &other) = delete;
+    WindowManager& operator=(const WindowManager&) = delete;
 private:
+    WindowManager(): QAbstractNativeEventFilter() { }
+
     void focus(xcb_window_t w);
     void goHome();
     void cycle();

@@ -14,6 +14,7 @@
 #include <X11/cursorfont.h>
 #include <X11/keysym.h>
 
+
 bool WindowManager::start(QWindow *home)
 {
     auto *x11 = qGuiApp->nativeInterface<QNativeInterface::QX11Application>();
