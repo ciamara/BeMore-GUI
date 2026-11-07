@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
     // and every program started from it is managed by us.
     // If another WM is already running (e.g. during development on a normal
     // desktop) this silently falls back to the original windowed behaviour.
-    WindowManager wm;
+    WindowManager& wm = WindowManager::GetInstance();
     auto *homeWindow = qobject_cast<QQuickWindow *>(engine.rootObjects().first());
     const bool wmActive = homeWindow && wm.start(homeWindow);
     if (wmActive)
