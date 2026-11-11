@@ -3,6 +3,12 @@
 #include <QFileInfo>
 #include <QProcess>
 
+// TODO: SET CORRECT IP AND MOONLIGHT PATH
+namespace Config {
+    const QString MoonlightBinaryPath = QStringLiteral("/usr/bin/moonlight-qt");
+    const QString HostIp = QStringLiteral("192.168.1.100");
+}
+
 bool Launcher::launch(const QString &thumbnailPath)
 {
     const QFileInfo thumb(thumbnailPath);
@@ -17,4 +23,19 @@ bool Launcher::launch(const QString &thumbnailPath)
     }
     qWarning() << "[Launcher] no executable found next to" << thumbnailPath;
     return false;
+}
+
+bool Launcher::launchMoonlight()
+{
+    const QFileInfo binInfo(Config::MoonlightBinaryPath);
+    if (!binInfo.exists() || !binInfo.isExecutable()) {
+        qWarning() << "[Launcher] Error with binary path:" << Config::MoonlightBinaryPath;
+        return false;
+    }
+
+    QStringList arguments;
+    arguments << QStringLiteral("stream") << Config::HostIp;
+
+    qInfo() << "[Launcher] Starting:" << Config::MoonlightBinaryPath << arguments;
+    return QProcess::startDetached(Config::MoonlightBinaryPath, arguments);
 }

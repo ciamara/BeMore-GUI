@@ -9,6 +9,7 @@ class Launcher : public QObject
 public:
     using QObject::QObject;
     Q_INVOKABLE bool launch(const QString &thumbnailPath);
+    Q_INVOKABLE bool launchMoonlight();
 };
 
 #endif // LAUNCHER_H

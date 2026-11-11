@@ -12,9 +12,14 @@ VideoPlayer::VideoPlayer(QObject *parent)
 
 void VideoPlayer::play(const QString &path)
 {
-    qint64 *pid;
-    QProcess::startDetached("mpv", {path}, {}, pid);
-    qInfo() << "[VideoPlayer] playing" << path << " " << *pid;
+    qint64 pid;
+    bool success = QProcess::startDetached("mpv", {path}, {}, &pid);
+    if (success) {
+        qInfo() << "[VideoPlayer] playing";
+    } else {
+        qWarning() << "[VideoPlayer] unable to start";
+        return;
+    }
 }
 
 QString VideoPlayer::thumbnailSource(const QString &path) const

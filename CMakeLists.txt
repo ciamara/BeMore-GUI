@@ -57,6 +57,7 @@ qt_add_qml_module(BeMore
         icons/wallpaper.svg
         icons/wallpaper_static.jpg
         icons/pause.svg
+        icons/video.svg
 )
 
 target_link_libraries(BeMore PRIVATE 

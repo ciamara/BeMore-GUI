@@ -21,6 +21,8 @@ Window {
 
     property bool gamesMode: false
 
+    property bool gamesSubmenuMode: false
+
     property bool settingsMode: false
 
     property bool wallpaperSettingsMode: false
@@ -82,6 +84,7 @@ Window {
         onClicked: {
             root.currentScreen = 0
             root.gamesMode = false
+            root.gamesSubmenuMode = false
             carousel.forceActiveFocus()
         }
 
@@ -149,6 +152,7 @@ Window {
             Keys.onDownPressed: {
                 if (root.currentScreen === 0) {
                     if (root.gamesMode) gamesCarousel.forceActiveFocus()
+                    else if (root.gamesSubmenuMode) gamesSubmenuCarousel.forceActiveFocus()
                     else carousel.forceActiveFocus()
                 }
                 else if (root.currentScreen === 1) musicList.forceActiveFocus()
@@ -252,7 +256,7 @@ Window {
         anchors.fill: parent
         visible: root.currentScreen === 0
 
-        enabled: visible && root.openedImageSource === "" && !root.gamesMode && !root.settingsMode
+        enabled: visible && root.openedImageSource === "" && !root.gamesMode && !root.gamesSubmenuMode && !root.settingsMode
         focus: true 
         Component.onCompleted: carousel.forceActiveFocus()
 
@@ -261,7 +265,7 @@ Window {
             ListElement { title: "IMAGES"; icon: "icons/camera.svg" }
             ListElement { title: "GAMES"; icon: "icons/controller.svg" }
             ListElement { title: "SETTINGS"; icon: "icons/sprocket.svg" }
-            ListElement { title: "VIDEOS"; icon: "icons/mode.svg" }
+            ListElement { title: "VIDEOS"; icon: "icons/video.svg" }
         }
 
         Keys.onUpPressed: modeButton.forceActiveFocus()
@@ -271,7 +275,7 @@ Window {
         function selectItem() {
             if (currentIndex === 0) { root.currentScreen = 1; musicList.forceActiveFocus() }
             else if (currentIndex === 1) { root.currentScreen = 2; imageGrid.forceActiveFocus() }
-            else if (currentIndex === 2) { root.gamesMode = true; gamesCarousel.forceActiveFocus() }
+            else if (currentIndex === 2) { root.gamesSubmenuMode = true; gamesSubmenuCarousel.forceActiveFocus() }
             else if (currentIndex === 3) { root.settingsMode = true; settingsCarousel.forceActiveFocus() }
             else if (currentIndex === 4) { root.currentScreen = 3; videoGrid.forceActiveFocus() }
         }
@@ -394,7 +398,7 @@ Window {
         height: 60
         fillMode: Image.PreserveAspectFit
 
-        visible: root.wallpaperSettingsMode // || root.otherSettingsMode
+        visible: root.wallpaperSettingsMode
 
         source: {
             if (settingsCarousel.model.count > 0) {
@@ -481,6 +485,89 @@ Window {
         }
     }
 
+    // games mode selector carousel (Local vs Moonlight)
+    PathView {
+        id: gamesSubmenuCarousel
+        width: parent.width
+        height: 250
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 100
+        visible: root.gamesSubmenuMode && root.currentScreen === 0
+        focus: visible
+        clip: true
+
+        model: ListModel {
+            ListElement { title: "LOCAL"; mode: "local" }
+            ListElement { title: "MOONLIGHT"; mode: "moonlight" }
+            ListElement { title: "LOCAL"; mode: "local" }
+            ListElement { title: "MOONLIGHT"; mode: "moonlight" }
+        }
+
+        function triggerSelection() {
+            var selectedMode = model.get(currentIndex).mode
+            if (selectedMode === "local") {
+                root.gamesSubmenuMode = false
+                root.gamesMode = true
+                gamesCarousel.forceActiveFocus()
+            } else if (selectedMode === "moonlight") {
+                Launcher.launchMoonlight()
+            }
+        }
+
+        Keys.onUpPressed: {
+            root.gamesSubmenuMode = false
+            carousel.forceActiveFocus()
+        }
+        Keys.onEscapePressed: {
+            root.gamesSubmenuMode = false
+            carousel.forceActiveFocus()
+        }
+        Keys.onLeftPressed: decrementCurrentIndex()
+        Keys.onRightPressed: incrementCurrentIndex()
+
+        Keys.onSpacePressed: triggerSelection()
+        Keys.onReturnPressed: triggerSelection()
+
+        pathItemCount: 3
+        preferredHighlightBegin: 0.5
+        preferredHighlightEnd: 0.5
+        highlightRangeMode: PathView.StrictlyEnforceRange
+        snapMode: PathView.SnapToItem
+
+        path: Path {
+            startX: root.width * 0.15; startY: 150
+            PathLine { x: root.width * 0.85; y: 150 }
+        }
+
+        delegate: Item {
+            width: 220; height: 150
+            readonly property bool isCurrent: PathView.isCurrentItem
+            z: isCurrent ? 10 : 1
+
+            Rectangle {
+                anchors.fill: parent
+                color: "transparent"
+
+                Text {
+                    anchors.centerIn: parent
+                    text: model.title
+
+                    color: (isCurrent && gamesSubmenuCarousel.activeFocus) ? "#83916A" : "#cac5d9"
+
+                    font.pixelSize: (isCurrent && gamesSubmenuCarousel.activeFocus) ? 38 : 26
+                    font.bold: isCurrent
+
+                    Behavior on font.pixelSize { NumberAnimation { duration: 200 } }
+                }
+
+                opacity: isCurrent ? 1.0 : 0.3
+                scale: isCurrent ? 1.1 : 0.7
+                Behavior on scale { NumberAnimation { duration: 200 } }
+                Behavior on opacity { NumberAnimation { duration: 200 } }
+            }
+        }
+    }
+
     //game carousel
     PathView {
         id: gamesCarousel
@@ -508,11 +595,13 @@ Window {
 
         Keys.onUpPressed: {
             root.gamesMode = false
-            carousel.forceActiveFocus()
+            root.gamesSubmenuMode = true
+            gamesSubmenuCarousel.forceActiveFocus()
         }
         Keys.onEscapePressed: {
             root.gamesMode = false
-            carousel.forceActiveFocus()
+            root.gamesSubmenuMode = true
+            gamesSubmenuCarousel.forceActiveFocus()
         }
         Keys.onLeftPressed: decrementCurrentIndex()
         Keys.onRightPressed: incrementCurrentIndex()
